@@ -1,1 +1,4 @@
-# PART-1
+# MyLESSONS
+
+Мои уроки по Ruby/Rails в thinknetica.com
+
