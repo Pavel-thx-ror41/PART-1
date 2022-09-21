@@ -57,7 +57,7 @@ end
 
 
 day_num = 0
-(1...month).each_with_object(0) do |month|
+(1...month).each do |month|
   day_num += year_months.values[month-1]
 end
 day_num += day
