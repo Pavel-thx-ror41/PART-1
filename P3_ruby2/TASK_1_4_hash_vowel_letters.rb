@@ -11,6 +11,6 @@ puts "Хеш гласных букв"
 
 vowels = {}
 
-(:a..:z).to_a.each_with_index { |letter, index|
+(:a..:z).each_with_index { |letter, index|
   vowels[letter] = index+1 if [:a, :e, :i, :o, :u].include?(letter)
 }
