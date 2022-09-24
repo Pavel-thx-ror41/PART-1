@@ -37,4 +37,17 @@ class Route
   def stations_get
     @stations
   end
+
+  # Следующая от указанной станции
+  def stations_get_next_from()
+    #@stations
+    # TODO 1st
+  end
+
+  # Следующая от указанной станции
+  def stations_get_prev_from()
+    #@stations
+    # TODO 1st
+  end
+
 end
