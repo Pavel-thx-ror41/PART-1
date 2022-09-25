@@ -3,7 +3,7 @@ class Route
   # Имеет начальную и конечную станцию, а также список промежуточных станций.
   # Начальная и конечная станции указываютсся при создании маршрута, а промежуточные могут добавляться между ними.
   def initialize(from, to)
-    if from.is_a?(Station) && to.is_a?(Station)
+    if from.is_a?(Station) && to.is_a?(Station) && from.object_id != to.object_id
       @stations = []
       @stations << from
       @stations << to
