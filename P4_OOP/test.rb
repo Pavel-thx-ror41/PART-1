@@ -80,29 +80,29 @@ puts "  train.route.stations.titles: #{train.instance_variable_get('@route').sta
 puts "  train.current_station.title: #{train.instance_variable_get('@current_station').instance_variable_get('@title')}"
 
 puts
-puts " route_get_curr_station: #{train.route_get_curr_station.instance_variable_get('@title')}"
+puts " curr_station_get: #{train.curr_station_get.instance_variable_get('@title')}"
 puts "  get prev: #{train.route_get_prev_station.instance_variable_get('@title')}"
 puts " move next 3x, move prev 1x"
 train.route_move_next_station
-puts "  move next #{train.route_get_curr_station.instance_variable_get('@title')}"
+puts "  move next #{train.curr_station_get.instance_variable_get('@title')}"
 train.route_move_next_station
-puts "  move next #{train.route_get_curr_station.instance_variable_get('@title')}"
+puts "  move next #{train.curr_station_get.instance_variable_get('@title')}"
 train.route_move_next_station
-puts "  move next #{train.route_get_curr_station.instance_variable_get('@title')}"
+puts "  move next #{train.curr_station_get.instance_variable_get('@title')}"
 train.route_move_prev_station
-puts "  move prev #{train.route_get_curr_station.instance_variable_get('@title')}"
+puts "  move prev #{train.curr_station_get.instance_variable_get('@title')}"
 
 puts
-puts " route_get_curr_station: #{train.route_get_curr_station.instance_variable_get('@title')}"
+puts " curr_station_get: #{train.curr_station_get.instance_variable_get('@title')}"
 puts "  get prev: #{train.route_get_prev_station.instance_variable_get('@title')}"
 puts "  get next: #{train.route_get_next_station.instance_variable_get('@title')}"
 
 puts
 train.route_move_next_station
-puts "  move next #{train.route_get_curr_station.instance_variable_get('@title')}"
+puts "  move next #{train.curr_station_get.instance_variable_get('@title')}"
 train.route_move_next_station
-puts "  move next #{train.route_get_curr_station.instance_variable_get('@title')}"
-puts "  get next: #{train.route_get_next_station.instance_variable_get('@title')}"
+puts "  move next #{train.curr_station_get.instance_variable_get('@title')}"
+puts "  get next: #{train.curr_station_get.instance_variable_get('@title')}"
 
 
 
@@ -119,7 +119,7 @@ train.route_move_prev_station
 # следующая Воронеж (voronezh), на которую будем прибывать
 puts
 puts " диспетчеризация arrive"
-puts " поезд: #{train.instance_variable_get('@number')} на станции: #{train.route_get_curr_station.instance_variable_get('@title')}"
+puts " поезд: #{train.instance_variable_get('@number')} на станции: #{train.curr_station_get.instance_variable_get('@title')}"
 puts
 puts "  на станции: #{voronezh.instance_variable_get('@title')}  поезда в количестве: #{voronezh.trains_get.count} шт."
 puts "  voronezh.train_arrive(train)"
@@ -130,16 +130,16 @@ print "  на станции: #{voronezh.instance_variable_get('@title')}  по�
 puts
 
 puts
-puts "  поезд: #{train.instance_variable_get('@number')} на станции: #{train.route_get_curr_station.instance_variable_get('@title')}"
+puts "  поезд: #{train.instance_variable_get('@number')} на станции: #{train.curr_station_get.instance_variable_get('@title')}"
 puts "  train.route_move_next_station"
 # в поезде отражаем перемещение на следующую станцию (Москва > Воронеж), только после station.train_arrive, иначе станция не пустит
 train.route_move_next_station
-puts "  поезд: #{train.instance_variable_get('@number')} на станции: #{train.route_get_curr_station.instance_variable_get('@title')}"
+puts "  поезд: #{train.instance_variable_get('@number')} на станции: #{train.curr_station_get.instance_variable_get('@title')}"
 puts
 puts
 puts
 puts " диспетчеризация departure + arrive"
-puts " поезд: #{train.instance_variable_get('@number')} на станции: #{train.route_get_curr_station.instance_variable_get('@title')}"
+puts " поезд: #{train.instance_variable_get('@number')} на станции: #{train.curr_station_get.instance_variable_get('@title')}"
 puts
 puts "  на станции: #{voronezh.instance_variable_get('@title')}  поезда в количестве: #{voronezh.trains_get.count} шт."
 voronezh.train_depart(train); puts "  voronezh.train_depart(train)"
@@ -150,13 +150,13 @@ puts
 puts "  на станции: #{rostov.instance_variable_get('@title')}  поезда в количестве: #{rostov.trains_get.count} шт."
 rostov.train_arrive(train); puts "  rostov.train_arrive(train)"
 print "  на станции: #{rostov.instance_variable_get('@title')}  поезда в количестве: #{rostov.trains_get.count} шт."\
-      " а именно: "; rostov.trains_get.each { |t| print "#{t.instance_variable_get('@number')}  " }
+      " а именно rostov.trains_get_by_type(:cargo): "; rostov.trains_get_by_type(:cargo).each { |t| print "#{t.instance_variable_get('@number')}  " }
 puts
 puts
-puts "  поезд: #{train.instance_variable_get('@number')} на станции: #{train.route_get_curr_station.instance_variable_get('@title')}"
+puts "  поезд: #{train.instance_variable_get('@number')} на станции: #{train.curr_station_get.instance_variable_get('@title')}"
 puts "  train.route_move_next_station"
 train.route_move_next_station
-puts "  поезд: #{train.instance_variable_get('@number')} на станции: #{train.route_get_curr_station.instance_variable_get('@title')}"
+puts "  поезд: #{train.instance_variable_get('@number')} на станции: #{train.curr_station_get.instance_variable_get('@title')}"
 puts
 
 

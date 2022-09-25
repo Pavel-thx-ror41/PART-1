@@ -4,13 +4,13 @@ require_relative 'station.rb'
 # Класс Train (Поезд)
 class Train
   # возможные типы поездов (грузовой, пассажирский)
-  Types = [:cargo, :passenger]
+  TYPES = [:cargo, :passenger]
 
   def initialize(number, type)
-    if Types.include?(type)
+    if TYPES.include?(type)
       @type = type
     else
-      raise "Ошибка данных, неправильный тип создаваемого состава: #{type}, возможны только: #{Types}"
+      raise "Ошибка данных, неправильный тип создаваемого состава: #{type}, возможны только: #{TYPES}"
     end
     @number = number        # номер поезда (произвольная строка)
 
@@ -20,6 +20,9 @@ class Train
     @current_station = nil  # Station
   end
 
+  def type_get
+    @type
+  end
 
   # Может набирать скорость
   def speed_set(speed)
@@ -77,7 +80,7 @@ class Train
   def route_get_next_station
     @route.station_get_next_from(@current_station)
   end
-  def route_get_curr_station
+  def curr_station_get
     @current_station
   end
   def route_get_prev_station

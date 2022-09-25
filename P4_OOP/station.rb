@@ -1,3 +1,5 @@
+require_relative 'train.rb'
+
 # Класс Station (Станция):
 class Station
 
@@ -28,19 +30,18 @@ class Station
     @trains
   end
 
-  # # Может возвращать список поездов на станции по типу (см. ниже): кол-во грузовых, пассажирских
-  # def trains_get_by_type(type)
-  #   if Route.Types.include?(type)
-  #     # TODO by type only
-  #     @trains
-  #   else
-  #     raise "Ошибка данных, неправильный тип состава: #{type}, возможны только: #{Types}"
-  #   end
-  # end
+  # Может возвращать список поездов на станции по типу (см. ниже): кол-во грузовых, пассажирских
+  def trains_get_by_type(type)
+    if Train::TYPES.include?(type)
+      @trains.select { |train| train.type_get == type }
+    else
+      raise "Ошибка данных, неправильный тип состава: #{type}, возможны только: #{Train::TYPES}"
+    end
+  end
 
   # Может отправлять поезда (по одному за раз, при этом, поезд удаляется из списка поездов, находящихся на станции).
   def train_depart(train)
-    if train.is_a?(Train) && @trains.index(train) && train.route_get_curr_station == self
+    if train.is_a?(Train) && @trains.index(train) && train.curr_station_get == self
       @trains.delete(train)
     else
       raise "Ошибка данных. "\
