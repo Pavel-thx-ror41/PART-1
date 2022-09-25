@@ -17,7 +17,6 @@ class Station
   #   train.is_a?(Train)
   #   train.route_next_station(train.current_station) == self
   #   # TODO
-  #   # станция не является следующей по маршруту, следующая станция по маршруту:
   # end
   #
   # # Может возвращать список всех поездов на станции, находящиеся в текущий момент

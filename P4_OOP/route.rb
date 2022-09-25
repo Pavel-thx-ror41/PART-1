@@ -39,15 +39,15 @@ class Route
   end
 
   # Следующая от указанной станции
-  def stations_get_next_from()
-    #@stations
-    # TODO 1st
+  def station_get_next_from(from_station)
+    from_station_index = @stations.index(from_station)
+    @stations[from_station_index + 1] if from_station_index
   end
 
   # Следующая от указанной станции
-  def stations_get_prev_from()
-    #@stations
-    # TODO 1st
+  def station_get_prev_from(from_station)
+    from_station_index = @stations.index(from_station)
+    @stations[from_station_index - 1] if from_station_index && from_station_index > 0
   end
 
 end

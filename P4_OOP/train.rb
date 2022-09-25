@@ -56,36 +56,36 @@ class Train
   # Может принимать маршрут следования (объект класса Route).
   # При назначении маршрута поезду, поезд автоматически помещается на первую станцию в маршруте.
   def route_set(route)
-    if route.is_a?(Route) && route.first.is_a?(Station)
+    if route.is_a?(Route) && route.stations_get.first.is_a?(Station)
       @route = route
-      @current_station = @route.first
+      @current_station = @route.stations_get.first
     else
       raise "Ошибка данных, тип параметра route: #{route.class}, должен быть Route, с первым элементом Station"
     end
   end
 
-  # Может перемещаться между станциями, указанными в маршруте.
-  # Перемещение возможно вперед и назад, но только на 1 станцию за раз.
-  def route_move_next_station
-    # TODO after Route
-    @current_station = @route.next_from(@current_station)
-  end
-  def route_move_prev_station
-    # TODO after Route
-    @current_station = @route.prev_from(@current_station)
-  end
-
-  # Возвращать предыдущую станцию, текущую, следующую, на основе маршрута
-  def route_get_next_station
-    # TODO after Route
-    @route.next_from(@current_station)
-  end
-  def route_get_curr_station
-    @current_station
-  end
-  def route_get_prev_station
-    # TODO after Route
-    @route.prev_from(@current_station)
-  end
+  # # Может перемещаться между станциями, указанными в маршруте.
+  # # Перемещение возможно вперед и назад, но только на 1 станцию за раз.
+  # def route_move_next_station
+  #   # TODO after Route
+  #   @current_station = @route.next_from(@current_station)
+  # end
+  # def route_move_prev_station
+  #   # TODO after Route
+  #   @current_station = @route.prev_from(@current_station)
+  # end
+  #
+  # # Возвращать предыдущую станцию, текущую, следующую, на основе маршрута
+  # def route_get_next_station
+  #   # TODO after Route
+  #   @route.next_from(@current_station)
+  # end
+  # def route_get_curr_station
+  #   @current_station
+  # end
+  # def route_get_prev_station
+  #   # TODO after Route
+  #   @route.prev_from(@current_station)
+  # end
 
 end
