@@ -25,7 +25,7 @@ class RailWay
     puts " \033[1;43;37m Маршруты           \033[0m"
     self.routes.each { |route| puts "  #{route.title}" }
 
-    return nil
+    #return nil
   end
 
   private
