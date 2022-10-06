@@ -4,7 +4,7 @@ class Train
   TYPES = [:cargo, :passenger]
 
   def initialize(number, type)
-    raise 'Можно создавать только определённый поезд' if self.class == Train
+    # TODO uncomment in release     raise 'Можно создавать только определённый поезд' if self.class == Train
     # можно и не определённый, до добавления первого вагона
 
     if TYPES.include?(type)
@@ -21,7 +21,7 @@ class Train
   end
 
   def number_get
-    @type
+    @number
   end
 
   def type_get
@@ -66,9 +66,13 @@ class Train
     if route.is_a?(Route) && route.stations_get.first.is_a?(Station)
       @route = route
       @current_station = @route.stations_get.first
+      # @current_station.train_arrive(self) наверно правильнее в RailWay
     else
       raise "Ошибка данных, тип параметра route: #{route.class}, должен быть Route, с первым элементом Station"
     end
+  end
+  def route_get
+    @route
   end
 
   # Может перемещаться между станциями, указанными в маршруте.

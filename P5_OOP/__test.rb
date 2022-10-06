@@ -51,31 +51,31 @@ puts "  '#{route.station_get_prev_from(station_not_in_route).instance_variable_g
 
 
 
-puts;puts
-puts "--- Поезд -------------------------------------------------"
-train = Train.new("001", :cargo)
+# puts;puts
+# puts "--- Поезд -------------------------------------------------"
+# train = Train.new("001", :cargo)
+#
+# puts
+# puts " speed(10) +3 вагона"
+# train.speed_set(10)
+# train.wagon_add
+# train.wagon_add
+# train.wagon_add
+# puts "  wagons_count #{train.wagons_count}" # 0
+#
+# puts
+# puts " speed(0) +4, -1 вагон"
+# train.speed_set(0)
+# train.wagon_add
+# train.wagon_add
+# train.wagon_add
+# train.wagon_add
+# train.wagon_remove
+# puts "  wagons_count #{train.wagons_count}" # 3
 
-puts
-puts " speed(10) +3 вагона"
-train.speed_set(10)
-train.wagon_add
-train.wagon_add
-train.wagon_add
-puts "  wagons_count #{train.wagons_count}" # 0
-
-puts
-puts " speed(0) +4, -1 вагон"
-train.speed_set(0)
-train.wagon_add
-train.wagon_add
-train.wagon_add
-train.wagon_add
-train.wagon_remove
-puts "  wagons_count #{train.wagons_count}" # 3
-
-puts
-puts " route_set(route)"
-train.route_set(route)
+# puts
+# puts " route_set(route)"
+# train.route_set(route)
 puts "  train.route.stations.titles: #{train.instance_variable_get('@route').stations_get.map{|station| station.instance_variable_get('@title') }}"
 puts "  train.current_station.title: #{train.instance_variable_get('@current_station').instance_variable_get('@title')}"
 

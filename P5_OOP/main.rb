@@ -18,7 +18,7 @@ MENU = [
     object_create: "Station",  params: { "title" => "" }, target_list: "@railway.stations"
   },
   {
-    command: "ST", description: "список поездов на станции",
+    command: "ST", description: "Просмотреть список поездов на станции, например: \033[1mSТ Москва\033[0m",
     source_list: "@railway.stations", source_list_filter: { "title" => "" }, object_list_method: { "trains_get" => "number_get"}
   },
   # { command: :TC,  description: "Создавать поезда", params: "", list: nil },
@@ -48,6 +48,7 @@ puts "\e[H\e[2J"
 command = ""
 loop do
   puts
+  puts
   puts "\033[0;47;30mКоманда\tОписание\033[0m"
   puts MENU_HELP
   puts "  \033[1mQ\033[0m\tВыход"
@@ -55,7 +56,7 @@ loop do
   print "введите команду: "
   if command == ""
     input = gets.chomp
-    command = input.partition(' ').first.upcase
+    command = input.partition(' ').first.strip.upcase
   end
   puts "\e[H\e[2J"
 
@@ -70,14 +71,11 @@ loop do
 
 
   puts
-  puts "\033[1;43;37m     #{menu_selected[:description]}:     \033[0m"
+  puts "\033[1;43;37m #{menu_selected[:description]}\033[0m\033[1;43;37m: \033[0m "
 
   if menu_selected[:object_show]
+    # object_show: "@railway" },
     eval(menu_selected[:object_show]).show
-    command = ""
-
-  elsif menu_selected[:list_titles]
-    eval(menu_selected[:list_titles]).each { |item| puts " #{item.title}" }
     command = ""
 
   elsif menu_selected[:object_create]
@@ -85,34 +83,53 @@ loop do
     params_keys = menu_selected[:params].keys.map(&:to_s) if menu_selected[:params]
     params_count = params_keys.count
     params_mods = menu_selected[:params].values.map(&:to_s) if menu_selected[:params]
-    params_values = input.partition(' ').last.squeeze(' ').delete(";").split(",").map(&:strip).reject(&:empty?)
+    input_params_values = input.partition(' ').last.squeeze(' ').delete(";").split(",").map(&:strip).reject(&:empty?)
 
     eval_command = ""
     eval_command += "#{menu_selected[:target_list]} << " if menu_selected[:target_list]
     eval_command += "#{menu_selected[:object_create]}.new"
-    eval_command += "(#{ params_values[..params_count].zip(params_mods).map { |i| "\""+i[0]+"\""+i[1] }.join(", ") })" if params_keys
+    eval_command += "(#{ input_params_values[..params_count].zip(params_mods).map { |i| "\""+i[0]+"\""+i[1] }.join(", ") })" if params_keys
 
     eval(eval_command)
     command = "I"
 
-  # elsif menu_selected[:object_create]
-  #   # command: "ST", description: "список поездов на станции",
-  #   # source_list: "@railway.stations", source_list_filter: { "title" => "" }, object_list_method: { "trains_get" => "number_get"}
-  #
-  #   # object_create: "Station",  params: { "title" => "" }, target_list: "@railway.stations"
-  #   params_keys = menu_selected[:params].keys.map(&:to_s) if menu_selected[:params]
-  #   params_count = params_keys.count
-  #   params_mods = menu_selected[:params].values.map(&:to_s) if menu_selected[:params]
-  #   params_values = input.partition(' ').last.squeeze(' ').delete(";").split(",").map(&:strip).reject(&:empty?)
-  #
-  #   eval_command = ""
-  #   eval_command += "#{menu_selected[:target_list]} << " if menu_selected[:target_list]
-  #   eval_command += "#{menu_selected[:object_create]}.new"
-  #   eval_command += "(#{ params_values[..params_count].zip(params_mods).map { |i| "\""+i[0]+"\""+i[1] }.join(", ") })" if params_keys
-  #
-  #   eval(eval_command)
-  #   command = "I"
 
+  elsif menu_selected[:list_titles]
+    # list_titles: "@railway.stations"
+    eval(menu_selected[:list_titles]).each { |item| puts " #{item.title}" }
+    command = ""
+    # TODO возможно дублирует menu_selected[:source_list] без параметров
+    # + ,source_list_method: :"title"
+    # = source_list: "@railway.stations", source_list_filter: { "title" => "" }
+
+  elsif menu_selected[:source_list] # TODO && source_list_filter && object_list_method
+    # source_list: "@railway.stations", source_list_filter: { "title" => "" }, object_list_method: { "trains_get" => "number_get"}
+
+    # source_list
+    eval_command = "#{menu_selected[:source_list]}"
+
+    # source_list_filter
+    input_params_values = input.partition(' ').last.squeeze(' ').delete(";").split(",").map(&:strip).reject(&:empty?)
+    # input_params_values = ["Воронеж", "Москва"] # TODO remove after DEBUG
+    # params_mods = menu_selected[:params].values.map(&:to_s) if menu_selected[:params] # TODO check .to_i .to_s для не String'ов
+    source_list_filter_key = menu_selected[:source_list_filter].keys.map(&:to_s).first if menu_selected[:source_list_filter]
+    if source_list_filter_key && (input_params_values.count > 0)
+      eval_command += ".select {|source_list_item| #{input_params_values.to_s}.include?(source_list_item.#{source_list_filter_key})}"
+    end
+    source_list_result = eval(eval_command)
+
+    puts
+    source_list_result.each do |source_list_item|
+      puts " \033[1;43;37m #{source_list_item.send(source_list_filter_key)} \033[0m"
+      puts
+
+      >>>
+      # WIP TODO выводим     object_list_method: { "trains_get" => "number_get"}
+      # eval_command =
+    end
+    binding.pry
+
+    command = ""
   else
     command = ""
   end

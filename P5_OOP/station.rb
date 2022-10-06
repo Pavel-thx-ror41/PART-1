@@ -19,7 +19,7 @@ class Station
 
   # Может принимать поезда (по одному за раз)
   def train_arrive(train)
-    if train.is_a?(Train) && !@trains.index(train) && train.route_get_next_station == self
+    if train.is_a?(Train) && !@trains.index(train)
       @trains << train
     else
       raise "Ошибка данных. "\
