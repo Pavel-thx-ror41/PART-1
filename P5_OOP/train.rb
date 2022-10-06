@@ -20,6 +20,10 @@ class Train
     @current_station = nil  # Station
   end
 
+  def number_get
+    @type
+  end
+
   def type_get
     @type
   end

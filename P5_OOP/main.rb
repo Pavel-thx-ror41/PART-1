@@ -7,23 +7,20 @@ require_relative 'rail_way.rb'
 
 MENU = [
   {
-    command: "I",
-    description: "Диспетчерская",
-    info: "@railway" },
+    command: "I", description: "Диспетчерская",
+    object_show: "@railway" },
   {
-    command: "SV",
-    description: "Просмотреть список станций",
-    list: "@railway.stations"
+    command: "SL", description: "Просмотреть список станций",
+    list_titles: "@railway.stations"
   },
   {
-    command: "SC",
-    description: "Создать станцию, например: \033[1mSC Москва\033[0m",
-    object: "Station",
-    params: { "title" => ".to_s" },
-    target: "@railway.stations"
+    command: "SC", description: "Создать станцию, например: \033[1mSC Москва\033[0m",
+    object_create: "Station",  params: { "title" => "" }, target_list: "@railway.stations"
   },
-  # { command: :ST, description: "список поездов на станции", params: "", list: nil },
-  #
+  {
+    command: "ST", description: "список поездов на станции",
+    source_list: "@railway.stations", source_list_filter: { "title" => "" }, object_list_method: { "trains_get" => "number_get"}
+  },
   # { command: :TC,  description: "Создавать поезда", params: "", list: nil },
   # { command: :TRS, description: "Назначать маршрут поезду", params: "", list: nil },
   # { command: :TRF, description: "Перемещать поезд по маршруту вперед и", params: "", list: nil },
@@ -48,6 +45,7 @@ end
 
 
 puts "\e[H\e[2J"
+command = ""
 loop do
   puts
   puts "\033[0;47;30mКоманда\tОписание\033[0m"
@@ -55,40 +53,69 @@ loop do
   puts "  \033[1mQ\033[0m\tВыход"
   puts
   print "введите команду: "
-  input = gets.chomp
+  if command == ""
+    input = gets.chomp
+    command = input.partition(' ').first.upcase
+  end
   puts "\e[H\e[2J"
 
-
-  command = input.partition(' ').first.upcase
   break if command == "Q"
 
   menu_selected = MENU.find { |mi| mi[:command] == command.to_s }
-  next if menu_selected.nil?
+
+  if menu_selected.nil?
+    command = ""
+    next
+  end
 
 
   puts
   puts "\033[1;43;37m     #{menu_selected[:description]}:     \033[0m"
-  if menu_selected[:info]
-    eval(menu_selected[:info]).show
-  elsif menu_selected[:list]
-    # @railway.stations  @railway.instance_variable_get('@stations')
-    eval(menu_selected[:list]).each { |item| puts " #{item.title}" }
-  elsif menu_selected[:object]
+
+  if menu_selected[:object_show]
+    eval(menu_selected[:object_show]).show
+    command = ""
+
+  elsif menu_selected[:list_titles]
+    eval(menu_selected[:list_titles]).each { |item| puts " #{item.title}" }
+    command = ""
+
+  elsif menu_selected[:object_create]
+    # object_create: "Station",  params: { "title" => "" }, target_list: "@railway.stations"
     params_keys = menu_selected[:params].keys.map(&:to_s) if menu_selected[:params]
+    params_count = params_keys.count
+    params_mods = menu_selected[:params].values.map(&:to_s) if menu_selected[:params]
     params_values = input.partition(' ').last.squeeze(' ').delete(";").split(",").map(&:strip).reject(&:empty?)
-    #params_eval = Hash[params_keys.zip(params_values)]
 
     eval_command = ""
-    eval_command += "#{menu_selected[:target]} << " if menu_selected[:target]
-    eval_command += "#{menu_selected[:object]}.new"
-    puts eval_command
+    eval_command += "#{menu_selected[:target_list]} << " if menu_selected[:target_list]
+    eval_command += "#{menu_selected[:object_create]}.new"
+    eval_command += "(#{ params_values[..params_count].zip(params_mods).map { |i| "\""+i[0]+"\""+i[1] }.join(", ") })" if params_keys
 
-    binding.pry
-    # params: { "title" => "String" },
-    # eval(" #{menu_selected[:params]}  ")
-    #eval(menu_selected[:list]).each { |item| puts " #{item.title}" } # @railway.stations  @railway.instance_variable_get('@stations')
+    eval(eval_command)
+    command = "I"
+
+  # elsif menu_selected[:object_create]
+  #   # command: "ST", description: "список поездов на станции",
+  #   # source_list: "@railway.stations", source_list_filter: { "title" => "" }, object_list_method: { "trains_get" => "number_get"}
+  #
+  #   # object_create: "Station",  params: { "title" => "" }, target_list: "@railway.stations"
+  #   params_keys = menu_selected[:params].keys.map(&:to_s) if menu_selected[:params]
+  #   params_count = params_keys.count
+  #   params_mods = menu_selected[:params].values.map(&:to_s) if menu_selected[:params]
+  #   params_values = input.partition(' ').last.squeeze(' ').delete(";").split(",").map(&:strip).reject(&:empty?)
+  #
+  #   eval_command = ""
+  #   eval_command += "#{menu_selected[:target_list]} << " if menu_selected[:target_list]
+  #   eval_command += "#{menu_selected[:object_create]}.new"
+  #   eval_command += "(#{ params_values[..params_count].zip(params_mods).map { |i| "\""+i[0]+"\""+i[1] }.join(", ") })" if params_keys
+  #
+  #   eval(eval_command)
+  #   command = "I"
+
+  else
+    command = ""
   end
-  puts
-
 
 end
+puts
