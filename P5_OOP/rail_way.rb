@@ -20,7 +20,7 @@ class RailWay
 
   def show
     puts
-    puts " \033[1;43;37m Станции \033[0m"
+    puts " \033[1mСтанции\033[0m"
     self.stations.each do |station|
       puts "  #{station.title}" +
            "   (поезда на станции: #{station.trains_get.map(&:number_get).join(", ")})"
@@ -28,13 +28,13 @@ class RailWay
     end
 
     puts
-    puts " \033[1;43;37m Маршруты \033[0m"
+    puts " \033[1mМаршруты\033[0m"
     self.routes.each { |route| puts "  #{route.title}   (#{route.stations_get.map(&:title).join(", ")})" }
 
 
 
     puts
-    puts " \033[1;43;37m Поезда \033[0m"
+    puts " \033[1mПоезда\033[0m"
     self.trains.each do |train|
       puts "  #{train.number_get} #{train.route_get.title}" +
              "   (#{train.type_get}, #{train.wagons_count} вагонов, на станции #{train.curr_station_get.title})"
