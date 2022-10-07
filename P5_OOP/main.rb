@@ -9,27 +9,20 @@ COMMAND_EXIT = "В"
 
 MENU = [
   {
-    command: COMMAND_INFO, caption: "Диспетчерская",
-    description: "Диспетчерская (посмотреть всю дорогу)",
-
+    command: COMMAND_INFO, caption: "Диспетчерская", description: "Диспетчерская (посмотреть всю дорогу)",
     object_show: "@railway" },
   {
-    command: "С", caption: "Станции",
-    description: "Просмотреть список станций",
-
+    command: "С", caption: "Станции", description: "Просмотреть список станций",
     list_titles: "@railway.stations"
   },
   {
-    command: "С+", caption: "",
-    description: "Создать станцию, например: \033[1mС+ Москва\033[0m",
-
+    command: "С+", caption: "", description: "Создать станцию, например: \033[1mС+ Москва\033[22m",
     object_create: "Station",  object_create_params: { "title" => "" }, target_list: "@railway.stations"
   },
   {
     command: "СП", caption: "Станции и Поезда на них",
-    description: "Просмотреть список поездов на станции(ях), например: \033[1mСП Москва, Воронеж\033[0m или \033[1mСП\033[0m для всех",
-
-    source_list: "@railway.stations", source_list_filter: { "title" => "" }, object_list_method: { "trains_get" => "number_get"}
+    description: "Просмотреть список поездов на станции(ях), например: \033[1mСП Москва, Воронеж\033[22m или \033[1mСП\033[22m для всех",
+    source_list: "@railway.stations", source_list_filter: { "title" => "" }, object_list_and_title_methods: { "trains_get" => "number_get"}
   },
   # { command: :П+,  description: "Создавать поезда", params: "", list: nil },
   # { command: :ПМ, description: "Назначать маршрут поезду", params: "", list: nil },
@@ -47,15 +40,14 @@ MENU = [
 
 
 MENU_HELP = MENU.map do |mi|
-  "  \033[1m#{mi[:command].to_s}\033[0m\t#{mi[:description].to_s}"
+  " \033[1m#{mi[:command].to_s}\033[22m\t  #{mi[:description].to_s}"
   # + ( mi[:object_create_params] ? " (#{mi[:object_create_params].keys.join(", ").to_s})" : "" )
 end
 
 
 def execute_command(menu_selected: nil, input: nil)
-  #binding.pry
   puts
-  puts "\033[1m#{menu_selected[:caption]}\033[0m"
+  puts "\033[100m \033[1m#{menu_selected[:caption]}\033[22m \033[0m"
 
   if menu_selected[:object_show]
     # object_show: "@railway" }
@@ -87,14 +79,14 @@ def execute_command(menu_selected: nil, input: nil)
     # = source_list: "@railway.stations", source_list_filter: { "title" => "" }
 
   elsif menu_selected[:source_list]
-    # source_list: "@railway.stations", source_list_filter: { "title" => "" }, object_list_method: { "trains_get" => "number_get"}
+    # source_list: "@railway.stations", source_list_filter: { "title" => "" }, object_list_and_title_methods: { "trains_get" => "number_get"}
 
     # source_list
     eval_command = "#{menu_selected[:source_list]}"
 
     # source_list_filter
     input_params_values = input.partition(' ').last.squeeze(' ').delete(";").split(",").map(&:strip).reject(&:empty?)
-    #input_params_values = ["Воронеж", "Москва"] # TODO remove after DEBUG
+    input_params_values = ["Воронеж", "Москва"] # TODO remove after DEBUG
     # params_mods = menu_selected[:object_create_params].values.map(&:to_s) if menu_selected[:object_create_params] # TODO check .to_i .to_s для не String'ов
     source_list_filter_key = menu_selected[:source_list_filter].keys.map(&:to_s).first if menu_selected[:source_list_filter]
     if source_list_filter_key && (input_params_values.count > 0)
@@ -105,15 +97,13 @@ def execute_command(menu_selected: nil, input: nil)
 
     puts
     source_list_result.each do |source_list_item|
-      puts " \033[1m#{source_list_item.send(source_list_filter_key)}\033[0m"
+      puts "  \033[1m#{source_list_item.send(source_list_filter_key)}\033[22m"
+      if menu_selected[:object_list_and_title_methods]
+        eval_command = "source_list_item.#{menu_selected[:object_list_and_title_methods].keys.first}.map {|item_list| item_list.#{menu_selected[:object_list_and_title_methods].values.first} }"
+        puts "   " + eval(eval_command).join(", ")
+      end
       puts
-
-      # TODO && source_list_filter && object_list_method
-      #>>>
-      # WIP TODO выводим     object_list_method: { "trains_get" => "number_get"}
-      # eval_command =
     end
-    #binding.pry
 
     command = ""
   else
@@ -124,20 +114,19 @@ end
 
 
 
-
 @railway = RailWay.new(seed: true)
-
 
 puts "\e[H\e[2J"
 command = ""
 loop do
   puts
   puts
-  puts "\033[0;47;30mКоманда\tОписание\033[0m"
+  puts "\033[30;47m Команда  Описание \033[39;49m"
   puts MENU_HELP
-  puts "  \033[1m#{COMMAND_EXIT}\033[0m\tВыход"
+  puts "\033[1m #{COMMAND_EXIT}\033[22m\t  Выход"
   puts
   print "введите команду: "
+
   if command == ""
     input = gets.chomp
     command = input.partition(' ').first.strip.upcase
@@ -155,4 +144,5 @@ loop do
 
   command = execute_command(menu_selected: menu_selected, input: input)
 end
+
 puts
