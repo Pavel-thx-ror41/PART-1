@@ -36,8 +36,9 @@ class RailWay
     puts
     puts " \033[1mПоезда\033[0m"
     self.trains.each do |train|
-      puts "  #{train.number_get} #{train.route_get.title}" +
-             "   (#{train.type_get}, #{train.wagons_count} вагонов, на станции #{train.curr_station_get.title})"
+      puts "  #{train.number_get} #{train.route_get&.title}" +
+             "   (#{train.type_get.to_s.gsub("cargo", "ГРУЗОВОЙ").gsub("passenger", "ПАССАЖИРСКИЙ")}" +
+             ", #{train.wagons_count} вагонов, на станции #{train.curr_station_get&.title})"
     end
 
     #return nil
@@ -89,6 +90,16 @@ class RailWay
 
 
     train = Train.new("002", :cargo)
+    train.wagon_add
+    train.wagon_add
+    train.wagon_add
+    self.trains << train
+
+    train.route_set(routes.last)
+    train.curr_station_get.train_arrive(train)
+
+
+    train = Train.new("003", :cargo)
     train.wagon_add
     train.wagon_add
     train.wagon_add
