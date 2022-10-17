@@ -4,6 +4,7 @@
 require 'pry'
 require_relative 'rail_way.rb'
 
+CLS = "\e[H\e[2J"
 COMMAND_INFO = "Д"
 COMMAND_EXIT = "Х"
 
@@ -12,7 +13,9 @@ MENU = [
     command: COMMAND_INFO,
     caption: "Диспетчерская",
     description: "Диспетчерская (посмотреть всю дорогу)",
-    object_show: "@railway" },
+    object_show: "@railway"
+  },
+
   {
     command: "С",
     caption: "Станции",
@@ -36,6 +39,7 @@ MENU = [
     source_list_filter: { "title" => "" },
     object_sublist_and_title_methods: { "trains_get" => "number_get"}
   },
+
   {
     command: "П",
     caption: "Поезда",
@@ -57,11 +61,18 @@ MENU = [
   #
   # { command: :ПВ+, description: "Добавлять вагоны к поезду", params: "", list: nil },
   # { command: :ПВ+, description: "Отцеплять вагоны от поезда", params: "", list: nil },
-  #
-  # { command: :МC,  description: "Создавать маршруты и ", params: "", list: nil },
-  # { command: :RSV, description: "управлять станциями в нем (добавлять, удалять)", params: "", list: nil },
-  # { command: :RSA, description: "управлять станциями в нем (добавлять, удалять)", params: "", list: nil },
-  # { command: :RSR, description: "управлять станциями в нем (добавлять, удалять)", params: "", list: nil }
+
+  {
+    command: "М+",
+    description: "Маршрут создать, например: \033[1mМ+ Воронеж, Краснодар\033[22m",
+    object_create: "Route",
+    object_create_params_lookup: { "from" => {"@railway.stations" => "title"}, "to" => {"@railway.stations" => "title"} },
+    target_list: "@railway.routes"
+  }
+  # { command: :МС,  description: "управлять станциями в нем (добавлять, удалять)", params: "", list: nil },
+  # { command: :МС+, description: "управлять станциями в нем (добавлять, удалять)", params: "", list: nil },
+  # { command: :МС-, description: "управлять станциями в нем (добавлять, удалять)", params: "", list: nil }
+
 ].freeze
 
 
@@ -101,6 +112,15 @@ def execute_command(menu_selected: nil, input: nil)
         eval_command = ""
         next_command = ""
       end
+    elsif menu_selected[:object_create_params_lookup]
+      # object_create_params_lookup: { "@railway.stations" => "title", "@railway.stations" => "title" },
+      binding.pry # TODO CREATE WITH LOOKUP BY STRING
+
+
+
+
+      eval_command = ""
+      next_command = ""
     end
 
     eval(eval_command)
@@ -145,8 +165,9 @@ end
 
 @railway = RailWay.new(seed: true)
 
-puts "\e[H\e[2J"
-command = ""
+puts CLS
+command = COMMAND_INFO
+
 loop do
   puts
   puts
@@ -160,7 +181,7 @@ loop do
     input = gets.chomp
     command = input.partition(' ').first.strip.upcase
   end
-  puts "\e[H\e[2J"
+  puts CLS
 
   break if command == COMMAND_EXIT
 
