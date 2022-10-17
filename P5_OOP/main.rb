@@ -10,30 +10,26 @@ COMMAND_EXIT = "Х"
 
 MENU = [
   {
-    command: COMMAND_INFO,
-    caption: "Диспетчерская",
+    command: COMMAND_INFO, caption: "Диспетчерская",
     description: "Диспетчерская (посмотреть всю дорогу)",
     object_show: "@railway"
   },
 
   {
-    command: "С",
-    caption: "Станции",
+    command: "С", caption: "Станции",
     description: "Станции, просмотреть список",
     source_list: "@railway.stations",
     source_list_filter: { "title" => "" }
   },
   {
-    command: "С+",
-    caption: "Добавление Станции",
+    command: "С+", caption: "Добавление Станции",
     description: "Станцию создать, например: \033[1mС+ Москва\033[22m",
     object_create: "Station",
-    object_create_params: { "title" => "" },
+    object_create_params: { "title" => ".squeeze(' ').strip" },
     target_list: "@railway.stations"
   },
   {
-    command: "СП",
-    caption: "Станции и Поезда на них",
+    command: "СП", caption: "Станции и Поезда на них",
     description: "Станция, поезда на ней (список поездов на станции(ях), например: \033[1mСП Москва, Воронеж\033[22m или \033[1mСП\033[22m для всех)",
     source_list: "@railway.stations",
     source_list_filter: { "title" => "" },
@@ -41,18 +37,16 @@ MENU = [
   },
 
   {
-    command: "П",
-    caption: "Поезда",
+    command: "П", caption: "Поезда",
     description: "Поезда, посмотреть список",
     source_list: "@railway.trains",
-    source_list_filter: { "number_get" => "" }
+    source_list_filter: { "number_get" => ".strip" }
   },
   {
-    command: "П+",
-    caption: "Добавление Поезда",
+    command: "П+", caption: "Добавление Поезда",
     description: "Поезд создать, например: \033[1mП+ 007,ПАСС\033[22m или \033[1mП+ 007,ГРУЗ\033[22m",
     object_create: "Train",
-    object_create_params: { "number" => "", "type" => ".strip.chars.first.upcase.gsub(\"Г\", \"cargo\").gsub(\"П\", \"passenger\").to_sym" },
+    object_create_params: { "number" => ".squeeze(' ').strip", "type" => ".strip.chars.first.upcase.gsub(\"Г\", \"cargo\").gsub(\"П\", \"passenger\").to_sym" },
     target_list: "@railway.trains"
   },
   # { command: :ПМ, description: "Назначать маршрут поезду", params: "", list: nil },
@@ -62,6 +56,13 @@ MENU = [
   # { command: :ПВ+, description: "Добавлять вагоны к поезду", params: "", list: nil },
   # { command: :ПВ+, description: "Отцеплять вагоны от поезда", params: "", list: nil },
 
+  {
+    command: "М",
+    caption: "Маршруты",
+    description: "Маршруты, посмотреть список",
+    source_list: "@railway.routes",
+    source_list_filter: { "title" => "" }
+  },
   {
     command: "М+",
     description: "Маршрут создать, например: \033[1mМ+ Воронеж, Краснодар\033[22m",
@@ -95,32 +96,41 @@ def execute_command(menu_selected: nil, input: nil)
 
   elsif menu_selected[:object_create]
     # Создать экземпляр класса с именем в :object_create, с параметрами из :object_create_params, в списке :target_list
-    # object_create: "Station",  object_create_params: { "title" => "to_s" }, target_list: "@railway.stations"
+    # object_create: "Station",  ..., target_list: "@railway.stations"
 
     next_command = COMMAND_INFO
     eval_command = menu_selected[:target_list] ? "#{menu_selected[:target_list]} << " : ""
     eval_command += "#{menu_selected[:object_create]}.new"
 
     if menu_selected[:object_create_params]
-      params_count = menu_selected[:object_create_params].keys.map(&:to_s).count
-      params_mods = menu_selected[:object_create_params].values.map(&:to_s) # to_i, to_f ...
+      # object_create_params: { "title" => "to_s" },
+      params = menu_selected[:object_create_params]
       input_params_values = input.partition(' ').last.squeeze(' ').delete(";").split(",").map(&:strip).reject(&:empty?)
-      constructor_params = input_params_values[..params_count].zip(params_mods).map { |i| "\""+i[0]+"\""+i[1] }.join(", ")
-      eval_command += "(#{ constructor_params })"
-      if params_count != input_params_values.count
-        puts "Не верное количество параметров, необходимо #{params_count} а именно: #{menu_selected[:object_create_params].keys.map(&:to_s).join(", ")}"
+      if params.count == input_params_values.count
+        params_modificators = params.values.map(&:to_s) # например "to_i", "to_f", ...
+        constructed_params = params_modificators.zip(input_params_values).map { |i| "\"#{i[1]}\"#{i[0]}" }.join(", ")
+        binding.pry # . ?   constructed_params
+        eval_command += "(#{ constructed_params })"
+      else
+        puts "Не верное количество параметров, необходимо #{params.count} а именно: #{params.keys.map(&:to_s).join(", ")}"
         eval_command = ""
         next_command = ""
       end
     elsif menu_selected[:object_create_params_lookup]
       # object_create_params_lookup: { "@railway.stations" => "title", "@railway.stations" => "title" },
-      binding.pry # TODO CREATE WITH LOOKUP BY STRING
+      params = menu_selected[:object_create_params_lookup]
+      input_params_values = input.partition(' ').last.squeeze(' ').delete(";").split(",").map(&:strip).reject(&:empty?)
 
-
-
-
-      eval_command = ""
-      next_command = ""
+      if params.count == input_params_values.count
+        constructed_params = params.map(&:last).zip(input_params_values).map { |i| "#{i[0].keys.first}.select {|obj| obj.#{i[0].values.first} == \"#{i[1]}\" }.first" }.join(", ")
+        eval_command += "(#{ constructed_params })"
+      else
+        puts "Не верное количество параметров, необходимо #{params.count} а именно: #{params.keys.map(&:to_s).join(", ")}"
+        eval_command = ""
+        next_command = ""
+      end
+    else
+      raise "Ошибка данных. В меню типа object_create должны присутствовать object_create_params или object_create_params_lookup"
     end
 
     eval(eval_command)
@@ -132,7 +142,6 @@ def execute_command(menu_selected: nil, input: nil)
     # source_list: "@railway.trains", source_list_filter: { "number_get" => "" }
 
     eval_command = "#{menu_selected[:source_list]}"
-
     input_params_values = input.partition(' ').last.squeeze(' ').delete(";").split(",").map(&:strip).reject(&:empty?)
     source_list_filter_method = menu_selected[:source_list_filter].keys.map(&:to_s).first if menu_selected[:source_list_filter]
     if source_list_filter_method && (input_params_values.count > 0)
@@ -145,7 +154,7 @@ def execute_command(menu_selected: nil, input: nil)
     source_list_result.each do |source_list_item|
       puts "  \033[1m#{source_list_item.send(source_list_filter_method)}\033[22m"
 
-      #source_list: "@railway.trains", source_list_filter: { "number_get" => "" } #, object_sublist_and_title_methods: { "route_get" => "title"}
+      # object_sublist_and_title_methods: { "route_get" => "title"}
       if menu_selected[:object_sublist_and_title_methods]
         eval_command = "source_list_item.#{menu_selected[:object_sublist_and_title_methods].keys.first}.map {|item_list| item_list.#{menu_selected[:object_sublist_and_title_methods].values.first} }"
         sub_list = eval(eval_command)
