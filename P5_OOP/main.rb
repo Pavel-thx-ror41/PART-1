@@ -10,26 +10,30 @@ COMMAND_EXIT = "Х"
 
 MENU = [
   {
-    command: COMMAND_INFO, caption: "Диспетчерская",
+    command: COMMAND_INFO,
+    caption: "Диспетчерская",
     description: "Диспетчерская (посмотреть всю дорогу)",
     object_show: "@railway"
   },
 
   {
-    command: "С", caption: "Станции",
+    command: "С",
+    caption: "Станции",
     description: "Станции, просмотреть список",
     source_list: "@railway.stations",
     source_list_filter: { "title" => "" }
   },
   {
-    command: "С+", caption: "Добавление Станции",
+    command: "С+",
+    caption: "Добавление Станции",
     description: "Станцию создать, например: \033[1mС+ Москва\033[22m",
     object_create: "Station",
     object_create_params: { "title" => ".squeeze(' ').strip" },
     target_list: "@railway.stations"
   },
   {
-    command: "СП", caption: "Станции и Поезда на них",
+    command: "СП",
+    caption: "Станции и Поезда на них",
     description: "Станция, поезда на ней (список поездов на станции(ях), например: \033[1mСП Москва, Воронеж\033[22m или \033[1mСП\033[22m для всех)",
     source_list: "@railway.stations",
     source_list_filter: { "title" => "" },
@@ -37,16 +41,21 @@ MENU = [
   },
 
   {
-    command: "П", caption: "Поезда",
+    command: "П",
+    caption: "Поезда",
     description: "Поезда, посмотреть список",
     source_list: "@railway.trains",
     source_list_filter: { "number_get" => ".strip" }
   },
   {
-    command: "П+", caption: "Добавление Поезда",
+    command: "П+",
+    caption: "Добавление Поезда",
     description: "Поезд создать, например: \033[1mП+ 007,ПАСС\033[22m или \033[1mП+ 007,ГРУЗ\033[22m",
     object_create: "Train",
-    object_create_params: { "number" => ".squeeze(' ').strip", "type" => ".strip.chars.first.upcase.gsub(\"Г\", \"cargo\").gsub(\"П\", \"passenger\").to_sym" },
+    object_create_params: {
+      "number" => ".squeeze(' ').strip",
+      "type" => ".strip.chars.first.upcase.gsub(\"Г\", \"cargo\").gsub(\"П\", \"passenger\").to_sym"
+    },
     target_list: "@railway.trains"
   },
   # { command: :ПМ, description: "Назначать маршрут поезду", params: "", list: nil },
