@@ -69,8 +69,16 @@ MENU = [
     object_create: "Route",
     object_create_params_lookup: { "from" => {"@railway.stations" => "title"}, "to" => {"@railway.stations" => "title"} },
     target_list: "@railway.routes"
+  },
+  {
+    command: "МС",
+    caption: "Маршрут(ы), список Станций",
+    description: "Маршрут, станции в нём, например: \033[1mМС Москва - Горячий ключ\033[22m или \033[1mМС\033[22m для всех",
+    source_list: "@railway.routes",
+    source_list_filter: { "title" => "" },
+    object_sublist_and_title_methods: { "stations_get" => "title"}
   }
-  # { command: :МС,  description: "управлять станциями в нем (добавлять, удалять)", params: "", list: nil },
+
   # { command: :МС+, description: "управлять станциями в нем (добавлять, удалять)", params: "", list: nil },
   # { command: :МС-, description: "управлять станциями в нем (добавлять, удалять)", params: "", list: nil }
 
