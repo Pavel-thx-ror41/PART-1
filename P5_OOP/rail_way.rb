@@ -89,8 +89,7 @@ class RailWay
     train.curr_station_get.train_arrive(train)
 
 
-    train = Train.new("002", :cargo)
-    train.wagon_add
+    train = Train.new("002", :passenger)
     train.wagon_add
     train.wagon_add
     self.trains << train
@@ -105,8 +104,12 @@ class RailWay
     train.wagon_add
     self.trains << train
 
-    train.route_set(routes.last)
+    train.route_set(routes.first)
     train.curr_station_get.train_arrive(train)
+
+
+    train = Train.new("004", :passenger)
+    self.trains << train
   end
 
 end

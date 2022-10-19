@@ -16,12 +16,14 @@ MENU = [
     object_show: "@railway"
   },
 
+  { caption: " " },
+
   {
     command: "С",
     caption: "Станции",
     description: "Станции, просмотреть список",
-    source_list: "@railway.stations",
-    source_list_filter: { "title" => "" }
+    show_list_source: "@railway.stations",
+    show_list_source_filter: { "title" => "" }
   },
   {
     command: "С+",
@@ -35,17 +37,19 @@ MENU = [
     command: "СП",
     caption: "Станции и Поезда на них",
     description: "Станция, поезда на ней (список поездов на станции(ях), например: \033[1mСП Москва, Воронеж\033[22m или \033[1mСП\033[22m для всех)",
-    source_list: "@railway.stations",
-    source_list_filter: { "title" => "" },
+    show_list_source: "@railway.stations",
+    show_list_source_filter: { "title" => "" },
     object_sublist_and_title_methods: { "trains_get" => "number_get"}
   },
+
+  { caption: " " },
 
   {
     command: "П",
     caption: "Поезда",
     description: "Поезда, посмотреть список",
-    source_list: "@railway.trains",
-    source_list_filter: { "number_get" => ".strip" }
+    show_list_source: "@railway.trains",
+    show_list_source_filter: { "number_get" => ".strip" }
   },
   {
     command: "П+",
@@ -58,19 +62,32 @@ MENU = [
     },
     target_list: "@railway.trains"
   },
-  # { command: :ПМ, description: "Назначать маршрут поезду", params: "", list: nil },
+  {
+    command: "П<М",
+    caption: "Назначить Поезду Маршрут",
+    description: "Поезду назначить Маршрут, например: \033[1mП<М 004, Москва - Горячий ключ\033[22m",
+    call_one_of_list_source: "@railway.trains",
+    call_one_of_list_source_filter: { "number_get" => ".first" },
+    call_one_of_list_method: "route_set",
+    call_one_of_list_method_param: "@railway.routes",
+    call_one_of_list_method_param_filter: { "title" => "[1]" }
+  },
+
   # { command: :ПМВ, description: "Перемещать поезд по маршруту вперед и", params: "", list: nil },
   # { command: :ПМН, description: "Перемещать поезд по маршруту назад", params: "", list: nil },
   #
   # { command: :ПВ+, description: "Добавлять вагоны к поезду", params: "", list: nil },
   # { command: :ПВ+, description: "Отцеплять вагоны от поезда", params: "", list: nil },
 
+
+  { caption: " " },
+
   {
     command: "М",
     caption: "Маршруты",
     description: "Маршруты, посмотреть список",
-    source_list: "@railway.routes",
-    source_list_filter: { "title" => "" }
+    show_list_source: "@railway.routes",
+    show_list_source_filter: { "title" => "" }
   },
   {
     command: "М+",
@@ -83,13 +100,16 @@ MENU = [
     command: "МС",
     caption: "Маршрут(ы), список Станций",
     description: "Маршрут, станции в нём, например: \033[1mМС Москва - Горячий ключ\033[22m или \033[1mМС\033[22m для всех",
-    source_list: "@railway.routes",
-    source_list_filter: { "title" => "" },
+    show_list_source: "@railway.routes",
+    show_list_source_filter: { "title" => "" },
     object_sublist_and_title_methods: { "stations_get" => "title"}
-  }
+  },
 
   # { command: :МС+, description: "управлять станциями в нем (добавлять, удалять)", params: "", list: nil },
   # { command: :МС-, description: "управлять станциями в нем (добавлять, удалять)", params: "", list: nil }
+
+
+  { caption: " " }
 
 ].freeze
 
@@ -102,6 +122,7 @@ end
 def execute_command(menu_selected: nil, input: nil)
   puts
   puts "\033[100m \033[1m#{menu_selected[:caption]}\033[22m \033[0m"
+
 
   if menu_selected[:object_show]
     # Вызов .show для объекта
@@ -154,13 +175,47 @@ def execute_command(menu_selected: nil, input: nil)
     command = next_command
 
 
-  elsif menu_selected[:source_list]
-    # source_list: "@railway.stations", source_list_filter: { "title" => "" }, object_sublist_and_title_methods: { "trains_get" => "number_get"}
-    # source_list: "@railway.trains", source_list_filter: { "number_get" => "" }
-
-    eval_command = "#{menu_selected[:source_list]}"
+  elsif menu_selected[:call_one_of_list_source] && menu_selected[:call_one_of_list_method]
+    # Вызвать медот для одного объекта из списка, с параметром или без
+    # call_one_of_list_source: "@railway.trains",
+    eval_command = "#{menu_selected[:call_one_of_list_source]}"
+    # call_one_of_list_source_filter: { "number_get" => ".first" ),
+    source_list_filter_method = menu_selected[:call_one_of_list_source_filter].keys.map(&:to_s).first
     input_params_values = input.partition(' ').last.squeeze(' ').delete(";").split(",").map(&:strip).reject(&:empty?)
-    source_list_filter_method = menu_selected[:source_list_filter].keys.map(&:to_s).first if menu_selected[:source_list_filter]
+    source_list_filter_value = menu_selected[:call_one_of_list_source_filter].values.map(&:to_s).first
+    eval_command += ".find {|source_list_item| #{input_params_values.to_s}#{source_list_filter_value}.include?(source_list_item.#{source_list_filter_method})}"
+    call_object = eval(eval_command)
+
+    # Параметры для вызываемого метода
+    # call_one_of_list_method_param: "@railway.routes",
+    if menu_selected[:call_one_of_list_method_param]
+      # call_one_of_list_method_param_filter: { "title" => "[1]" }
+      param_object_lookup_method = menu_selected[:call_one_of_list_method_param_filter].keys.first
+      param_offset_in_input = menu_selected[:call_one_of_list_method_param_filter].values.first
+      eval_command_params = menu_selected[:call_one_of_list_method_param] +
+        ".find {|params_list_item| #{input_params_values.to_s}#{param_offset_in_input}.include?(params_list_item.#{param_object_lookup_method})}"
+
+      params_object = eval(eval_command_params)
+    end
+
+    # call_one_of_list_method: "route_set",
+    if call_object
+      call_result = params_object ?
+                    call_object.send(menu_selected[:call_one_of_list_method], params_object) :
+                    call_object.send(menu_selected[:call_one_of_list_method])
+                    # TODO pass or not params not according params_object, but menu_selected[:call_one_of_list_method_param_filter].values.count
+    end
+    command = COMMAND_INFO
+
+
+  elsif menu_selected[:show_list_source]
+    # Отобразить список, со списком вложенных объектов
+    # show_list_source: "@railway.stations", show_list_source_filter: { "title" => "" }, object_sublist_and_title_methods: { "trains_get" => "number_get"}
+    # show_list_source: "@railway.trains", show_list_source_filter: { "number_get" => "" }
+
+    eval_command = "#{menu_selected[:show_list_source]}"
+    input_params_values = input.partition(' ').last.squeeze(' ').delete(";").split(",").map(&:strip).reject(&:empty?)
+    source_list_filter_method = menu_selected[:show_list_source_filter].keys.map(&:to_s).first if menu_selected[:show_list_source_filter]
     if source_list_filter_method && (input_params_values.count > 0)
       puts " только для: #{input_params_values.join(", ")}"
       eval_command += ".select {|source_list_item| #{input_params_values.to_s}.include?(source_list_item.#{source_list_filter_method})}"
