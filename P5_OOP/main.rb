@@ -80,7 +80,6 @@ MENU = [
     call_one_of_list_source_filter: { "number_get" => ".first" },
     call_one_of_list_method: "route_move_next_station",
   },
-  # { command: :ПМН, description: "Перемещать поезд по маршруту назад", params: "", list: nil },
   {
     command: "ПМН",
     caption: "Поезд по Маршруту назад",
@@ -89,8 +88,22 @@ MENU = [
     call_one_of_list_source_filter: { "number_get" => ".first" },
     call_one_of_list_method: "route_move_prev_station",
   },
-  # { command: :ПВ+, description: "Добавлять вагоны к поезду", params: "", list: nil },
-  # { command: :ПВ+, description: "Отцеплять вагоны от поезда", params: "", list: nil },
+  {
+    command: "ПВ+",
+    caption: "Поезд Вагон добавить",
+    description: "Поезд Вагон добавить, например: \033[1mПВ+ 003\033[22m",
+    call_one_of_list_source: "@railway.trains",
+    call_one_of_list_source_filter: { "number_get" => ".first" },
+    call_one_of_list_method: "wagon_add",
+  },
+  {
+    command: "ПВ-",
+    caption: "Поезд Вагон отцепить",
+    description: "Поезд Вагон отцепить, например: \033[1mПВ- 003\033[22m",
+    call_one_of_list_source: "@railway.trains",
+    call_one_of_list_source_filter: { "number_get" => ".first" },
+    call_one_of_list_method: "wagon_remove",
+  },
 
   { caption: " " },
 
