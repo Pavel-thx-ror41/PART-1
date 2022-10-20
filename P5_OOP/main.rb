@@ -72,13 +72,17 @@ MENU = [
     call_one_of_list_method_param: "@railway.routes",
     call_one_of_list_method_param_filter: { "title" => "[1]" }
   },
-
-  # { command: :ПМВ, description: "Перемещать поезд по маршруту вперед и", params: "", list: nil },
+  {
+    command: "ПМВ",
+    caption: "Поезд по Маршруту вперёд",
+    description: "Поезд по Маршруту вперёд, например: \033[1mПМВ 003\033[22m",
+    call_one_of_list_source: "@railway.trains",
+    call_one_of_list_source_filter: { "number_get" => ".first" },
+    call_one_of_list_method: "route_move_next_station",
+  },
   # { command: :ПМН, description: "Перемещать поезд по маршруту назад", params: "", list: nil },
-  #
   # { command: :ПВ+, description: "Добавлять вагоны к поезду", params: "", list: nil },
   # { command: :ПВ+, description: "Отцеплять вагоны от поезда", params: "", list: nil },
-
 
   { caption: " " },
 
@@ -270,6 +274,7 @@ loop do
 
   if menu_selected.nil?
     command = ""
+    puts "\033[0;31mНеизвестная команда\033[0m\t"
     next
   end
 

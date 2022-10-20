@@ -78,10 +78,12 @@ class Train
   # Может перемещаться между станциями, указанными в маршруте.
   # Перемещение возможно вперед и назад, но только на 1 станцию за раз.
   def route_move_next_station
-    @current_station = @route.station_get_next_from(@current_station)
+    next_station = @route.station_get_next_from(@current_station)
+    @current_station = next_station if next_station
   end
   def route_move_prev_station
-    @current_station = @route.station_get_prev_from(@current_station)
+    prev_station = @route.station_get_prev_from(@current_station)
+    @current_station = prev_station if prev_station
   end
 
   # Возвращает следующую, текущую, предыдущую станцию, на основе маршрута
