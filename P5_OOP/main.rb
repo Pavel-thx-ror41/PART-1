@@ -129,18 +129,24 @@ MENU = [
     show_list_source_filter: { "title" => "" },
     object_sublist_and_title_methods: { "stations_get" => "title"}
   },
-
-  # {
-  #   command: "М<C",
-  #   caption: "Маршрут, добавить станцию",
-  #   description: "Маршрут, Станцию вставить перед, например: \033[1mМ<С Ростов на Дону - Горячий ключ, Краснодар, Горячий ключ)\033[22m",
-  #   call_one_of_list: "@railway.routes",
-  #   call_one_of_list_filter: { "title" => "[0]" },
-  #   call_one_of_list_method: "station_insert",
-  #   call_one_of_list_method_params: [{"@railway.routes" => { "title" => "[1]" }, "@railway.routes" => { "title" => "[2]" }}]
-  # }
-  # { command: :МС+, description: "управлять станциями в нем (добавлять, удалять)", params: "", list: nil },
-  # { command: :МС-, description: "управлять станциями в нем (добавлять, удалять)", params: "", list: nil }
+  {
+    command: "М<С",
+    caption: "Маршрут, вставить станцию",
+    description: "Маршрут, вставить Станцию перед другой, например: \033[1mМ<С Ростов на Дону - Горячий ключ, Воронеж, Горячий ключ\033[22m",
+    call_one_of_list: "@railway.routes",
+    call_one_of_list_filter: { "title" => "[0]" },
+    call_one_of_list_method: "station_insert",
+    call_one_of_list_method_params: [{"@railway.stations" => { "title" => "[1]" }}, {"@railway.stations" => { "title" => "[2]" }}]
+  },
+  {
+    command: "МС>",
+    caption: "Маршрут, исключить станцию",
+    description: "Маршрут, Станцию исключить, например: \033[1mМС> Ростов на Дону - Горячий ключ, Краснодар\033[22m",
+    call_one_of_list: "@railway.routes",
+    call_one_of_list_filter: { "title" => "[0]" },
+    call_one_of_list_method: "station_remove",
+    call_one_of_list_method_params: [{"@railway.stations" => { "title" => "[1]" }}]
+  }
 
 
 ].freeze
@@ -226,7 +232,7 @@ def execute_command(menu_selected: nil, input: nil)
 
 
     # Параметры для вызываемого метода
-    # call_one_of_list_method_params: [ { "@railway.routes" => { "title" => "[1]" } } ]
+    # call_one_of_list_method_params: [ { "@railway.routes" => { "title" => "[1]" } }, ... ]
     call_object_method_params = []
     menu_selected[:call_one_of_list_method_params]&.each do |call_one_of_list_method_param|
       call_object_method_params_object = call_one_of_list_method_param.keys.first # "@railway.routes"
