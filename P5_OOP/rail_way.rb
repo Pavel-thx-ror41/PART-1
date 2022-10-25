@@ -43,6 +43,7 @@ class RailWay
 
   private
 
+  # вызывается только из initialize
   def seed
     self.stations << Station.new('Москва')
     self.stations << Station.new('Воронеж')
