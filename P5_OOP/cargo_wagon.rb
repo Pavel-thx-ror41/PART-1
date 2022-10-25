@@ -1,3 +1,2 @@
-# Вагон поезда
-class Wagon
+class CargoWagon
 end

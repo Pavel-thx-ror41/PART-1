@@ -1,9 +1,10 @@
 require_relative 'station.rb'
 require_relative 'route.rb'
 require_relative 'train.rb'
-# require_relative 'wagon.rb'
-# require_relative 'cargo_train.rb'
-# require_relative 'passenger_train.rb'
+require_relative 'cargo_train.rb'
+require_relative 'cargo_wagon.rb'
+require_relative 'passenger_train.rb'
+require_relative 'passenger_wagon.rb'
 
 class RailWay
   attr_reader :stations
@@ -31,8 +32,6 @@ class RailWay
     puts " \033[1mМаршруты\033[0m"
     self.routes.each { |route| puts "  #{route.title}   (#{route.stations_get.map(&:title).join(", ")})" }
 
-
-
     puts
     puts " \033[1mПоезда\033[0m"
     self.trains.each do |train|
@@ -40,8 +39,6 @@ class RailWay
              "   (#{train.type_get.to_s.gsub("cargo", "ГРУЗОВОЙ").gsub("passenger", "ПАССАЖИРСКИЙ")}" +
              ", #{train.wagons_count} вагонов, на станции #{train.curr_station_get&.title})"
     end
-
-    #return nil
   end
 
   private
@@ -59,8 +56,6 @@ class RailWay
 
     route.station_insert(stations[1], stations.last)
     route.station_insert(stations[2], stations.last)
-    # route.station_insert(stations[2], stations.last)           # error copy
-    # route.station_insert(station_not_in_route, stations.first) # error before first
     route.station_insert(stations[3], stations.last)
     route.station_remove(stations[3])
     route.station_remove(stations[2])
@@ -77,38 +72,38 @@ class RailWay
     self.routes << route
 
 
-    train = Train.new("001", :cargo)
-    train.wagon_add
-    train.wagon_add
-    train.wagon_add
-    train.wagon_add
-    train.wagon_add
+    train = CargoTrain.new("001")
+    train.wagon_add(CargoWagon.new)
+    train.wagon_add(CargoWagon.new)
+    train.wagon_add(CargoWagon.new)
+    train.wagon_add(CargoWagon.new)
+    train.wagon_add(CargoWagon.new)
     self.trains << train
 
     train.route_set(routes.first)
     train.curr_station_get.train_arrive(train)
 
 
-    train = Train.new("002", :passenger)
-    train.wagon_add
-    train.wagon_add
+    train = PassengerTrain.new("002")
+    train.wagon_add(PassengerWagon.new)
+    train.wagon_add(PassengerWagon.new)
     self.trains << train
 
     train.route_set(routes.last)
     train.curr_station_get.train_arrive(train)
 
 
-    train = Train.new("003", :cargo)
-    train.wagon_add
-    train.wagon_add
-    train.wagon_add
+    train = CargoTrain.new("003")
+    train.wagon_add(CargoWagon.new)
+    train.wagon_add(CargoWagon.new)
+    train.wagon_add(CargoWagon.new)
     self.trains << train
 
     train.route_set(routes.first)
     train.curr_station_get.train_arrive(train)
 
 
-    train = Train.new("004", :passenger)
+    train = PassengerTrain.new("004")
     self.trains << train
   end
 

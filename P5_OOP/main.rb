@@ -53,14 +53,19 @@ MENU = [
     show_list_source_filter: { "number_get" => ".strip" }
   },
   {
-    command: "П+",
-    caption: "Добавление Поезда",
-    description: "Поезд создать, например: \033[1mП+ 007,ПАСС\033[22m или \033[1mП+ 007,ГРУЗ\033[22m",
-    object_create: "Train",
-    object_create_params: {
-      "number" => ".squeeze(' ').strip",
-      "type" => ".strip.chars.first.upcase.gsub(\"Г\", \"cargo\").gsub(\"П\", \"passenger\").to_sym"
-    },
+    command: "П+П",
+    caption: "Добавление ПассажирскогоПоезда",
+    description: "Поезд создать (Пассажирский), например: \033[1mП+П 007\033[22m",
+    object_create: "PassengerTrain",
+    object_create_params: { "number" => ".squeeze(' ').strip" },
+    target_list: "@railway.trains"
+  },
+  {
+    command: "П+Г",
+    caption: "Добавление ГрузовогоПоезда",
+    description: "Поезд создать (Грузовой), например: \033[1mП+Г 009\033[22m",
+    object_create: "CargoTrain",
+    object_create_params: { "number" => ".squeeze(' ').strip" },
     target_list: "@railway.trains"
   },
   {
@@ -89,12 +94,20 @@ MENU = [
     call_one_of_list_method: "route_move_prev_station",
   },
   {
-    command: "ПВ+",
-    caption: "Поезд Вагон добавить",
-    description: "Поезд Вагон добавить, например: \033[1mПВ+ 003\033[22m",
+    command: "ПВ+П",
+    caption: "Поезд Вагон добавить пассажирский",
+    description: "Поезд Вагон пассажирский добавить, например: \033[1mПВ+П 004\033[22m",
     call_one_of_list: "@railway.trains",
     call_one_of_list_filter: { "number_get" => "[0]" },
-    call_one_of_list_method: "wagon_add",
+    call_one_of_list_method: "wagon_add(PassengerWagon.new)",
+  },
+  {
+    command: "ПВ+Г",
+    caption: "Поезд Вагон добавить грузовой",
+    description: "Поезд Вагон грузовой добавить, например: \033[1mПВ+Г 003\033[22m",
+    call_one_of_list: "@railway.trains",
+    call_one_of_list_filter: { "number_get" => "[0]" },
+    call_one_of_list_method: "wagon_add(CargoWagon.new)",
   },
   {
     command: "ПВ-",
@@ -147,8 +160,6 @@ MENU = [
     call_one_of_list_method: "station_remove",
     call_one_of_list_method_params: [{"@railway.stations" => { "title" => "[1]" }}]
   }
-
-
 ].freeze
 
 
@@ -243,7 +254,7 @@ def execute_command(menu_selected: nil, input: nil)
 
       if !call_object_method_params_object.empty? && !call_object_method_params_object_lookup_method.empty?
         # объект поиска задан для параметра, поиск объекта из списка
-        call_object_method_params << eval(call_object_method_params_object + # .class = Route
+        call_object_method_params << eval(call_object_method_params_object +
           ".find {|i| #{input_params_values.to_s}#{param_offset_in_input}.include?(i.#{call_object_method_params_object_lookup_method})}")
         # "@railway.routes.find {|params_list_item| [\"004\", \"Москва - Горячий ключ\"][1].include?(params_list_item.title)}"
       else
@@ -254,7 +265,7 @@ def execute_command(menu_selected: nil, input: nil)
 
     if call_object # .class = Train
       call_object_method_params.empty? ?
-        call_object.send(call_object_method) :
+        call_object.instance_eval(call_object_method) :
         call_object.send(call_object_method, *call_object_method_params)
     end
     command = COMMAND_INFO
