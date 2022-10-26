@@ -25,7 +25,6 @@ class RailWay
     self.stations.each do |station|
       puts "  #{station.title}" +
            "   (поезда на станции: #{station.trains_get.map(&:number_get).join(", ")})"
-
     end
 
     puts

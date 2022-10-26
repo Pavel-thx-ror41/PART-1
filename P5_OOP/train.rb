@@ -18,7 +18,6 @@ class Train
     self.class.to_s.gsub("Train","").downcase.to_sym
   end
 
-
   def speed_set(speed)
     @speed = speed.to_i
   end
@@ -31,15 +30,17 @@ class Train
     @speed = 0
   end
 
-
   def wagons_count
     @wagons.count
   end
 
   def wagon_remove
-    @wagons.pop if @speed == 0
+    @wagons.pop if stopped?
   end
 
+  def wagon_add(wagon)
+    @wagons << wagon if stopped? && wagon_is_same_kind?(wagon)
+  end
 
   def route_set(route)
     if route.is_a?(Route) && route.stations_get.first.is_a?(Station)
@@ -54,7 +55,6 @@ class Train
     @route
   end
 
-
   def route_move_next_station
     next_station = @route.station_get_next_from(@current_station)
     @current_station = next_station if next_station
@@ -65,16 +65,20 @@ class Train
     @current_station = prev_station if prev_station
   end
 
-
-  def route_get_next_station
-    @route.station_get_next_from(@current_station)
-  end
-
   def curr_station_get
     @current_station
   end
 
-  def route_get_prev_station
-    @route.station_get_prev_from(@current_station)
+  protected
+
+  # будет вызываться у наследников
+  def wagon_is_same_kind?(wagon)
+    wagon.class.to_s.gsub('Wagon', '') == self.class.to_s.gsub('Train', '')
   end
+
+  # будет вызываться у наследников
+  def stopped?
+    @speed == 0
+  end
+
 end
