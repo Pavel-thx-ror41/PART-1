@@ -1,4 +1,8 @@
+require_relative 'manufacturer.rb'
+
 class Train
+  include Manufacturer
+
   def initialize(number)
     if self.instance_of?(Train)
       raise "Ошибка данных, можно создать только PassengerTrain или CargoTrain"
