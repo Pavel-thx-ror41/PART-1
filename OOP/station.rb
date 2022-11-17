@@ -1,6 +1,11 @@
 require_relative 'train.rb'
 
 class Station
+  @@stations = []
+
+  def self.all
+    @@stations
+  end
 
   def initialize(title)
     if title.to_s.length > 0
@@ -9,6 +14,7 @@ class Station
       raise "Ошибка данных, в названии: #{type}, должно быть хоть какое-то значение"
     end
     @trains = []
+    @@stations << self
   end
 
   def title
