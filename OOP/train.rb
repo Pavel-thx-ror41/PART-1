@@ -3,6 +3,12 @@ require_relative 'manufacturer.rb'
 class Train
   include Manufacturer
 
+  @@trains = []
+
+  def self.find(train)
+    @@trains.detect { |t| t == train }
+  end
+
   def initialize(number)
     if self.instance_of?(Train)
       raise "Ошибка данных, можно создать только PassengerTrain или CargoTrain"
@@ -12,6 +18,7 @@ class Train
     @wagons = []
     @route = nil
     @current_station = nil
+    @@trains << self
   end
 
   def number_get
