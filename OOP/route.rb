@@ -1,4 +1,8 @@
+require_relative 'instance_counter.rb'
+
 class Route
+  include InstanceCounter
+
   def initialize(from, to)
     if from.is_a?(Station) && to.is_a?(Station) && from.object_id != to.object_id
       @stations = []

@@ -1,0 +1,39 @@
+module InstanceCounter
+  def self.included(base)
+    base.extend ClassMethods
+    base.send :include, InstanceMethods
+    base.send :prepend, Initializer # https://stackoverflow.com/a/17498039
+  end
+
+  @@instances_counts ||= {}
+
+  module Initializer
+    # @@instances_counts ||= {}
+    def initialize(*args)
+      # @@instances_counts ||= {}
+      register_instance
+      super(*args)
+    end
+  end
+
+  module ClassMethods
+    def instances
+      self.class_variable_get(:@@instances_counts)[self.to_s.to_sym]
+    end
+  end
+
+  module InstanceMethods
+    # @@instances_counts ||= {}
+    protected
+    def register_instance
+      register_instance_set(:@@instances_counts)
+    end
+
+    def register_instance_set(variable_name)
+      instances_counts = self.class.class_variable_get(variable_name)
+      instances_counts[self.class.to_s.to_sym] ||= 0
+      instances_counts[self.class.to_s.to_sym] += 1
+      # self.class.class_variable_set(variable_name, instances_counts ) # by_reference, not by_value
+    end
+  end
+end

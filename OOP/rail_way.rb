@@ -17,7 +17,7 @@ class RailWay
     @stations = []
     @routes = []
     @trains = []
-    self.seed if seed
+    seed() if seed
   end
 
   def show
@@ -72,6 +72,27 @@ class RailWay
     route.station_insert(stations[3], stations[4])
     self.routes << route
 
+    route = Route.new(stations[2], stations[4])
+    route.station_insert(stations[3], stations[4])
+    self.routes << route
+
+
+    train = CargoTrain.new("000")
+    train.wagon_add(CargoWagon.new)
+    train.wagon_add(CargoWagon.new)
+    train.wagon_add(CargoWagon.new)
+    train.wagon_add(CargoWagon.new)
+    train.wagon_add(CargoWagon.new)
+    self.trains << train
+
+    train = CargoTrain.new("000/2")
+    train.wagon_add(CargoWagon.new)
+    train.wagon_add(CargoWagon.new)
+    train.wagon_add(CargoWagon.new)
+    train.wagon_add(CargoWagon.new)
+    train.wagon_add(CargoWagon.new)
+    self.trains << train
+
 
     train = CargoTrain.new("001")
     train.wagon_add(CargoWagon.new)
@@ -106,6 +127,18 @@ class RailWay
 
     train = PassengerTrain.new("004")
     self.trains << train
+
+
+    train.manufacturer = "manufacturer_caption"
+    raise "Ошибка проверки доработок task225829" if (
+      Train.find(trains[2]).number_get != trains[2].number_get ||
+      Station.all.count != 5 ||
+      train.manufacturer != "manufacturer_caption" ||
+      Station.instances != 5 ||
+      Route.instances != 3 ||
+      CargoTrain.instances != 4 ||
+      PassengerTrain.instances != 2
+    )
   end
 
 end

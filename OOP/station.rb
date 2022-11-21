@@ -1,6 +1,9 @@
 require_relative 'train.rb'
+require_relative 'instance_counter.rb'
 
 class Station
+  include InstanceCounter
+
   @@stations = []
 
   def self.all

@@ -1,7 +1,9 @@
 require_relative 'manufacturer.rb'
+require_relative 'instance_counter.rb'
 
 class Train
   include Manufacturer
+  include InstanceCounter
 
   @@trains = []
 
