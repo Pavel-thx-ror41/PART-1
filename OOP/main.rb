@@ -6,6 +6,7 @@ require_relative 'rail_way.rb'
 
 CLS = "\e[H\e[2J"
 COMMAND_INFO = "Д"
+COMMAND_CREATE_INPUT_ERROR = "ОШИБКА_ВВОДА_ПРИ_СОЗДАНИИ"
 COMMAND_EXIT = "Х"
 
 MENU = [
@@ -211,7 +212,11 @@ def execute_command(menu_selected: nil, input: nil)
       raise "Ошибка данных. В меню типа object_create должны присутствовать object_create_params или object_create_params_lookup"
     end
 
-    eval(eval_command)
+    target_list_after = eval(eval_command)
+    if target_list_after.last.is_a?(RuntimeError)
+      next_command = COMMAND_CREATE_INPUT_ERROR
+      target_list_after.pop
+    end
     command = next_command
 
 
@@ -313,6 +318,11 @@ puts CLS
 command = COMMAND_INFO
 
 loop do
+  if command == COMMAND_CREATE_INPUT_ERROR
+    puts "\033[0;31m Неправильный ввод при создании\033[0m\t"
+    command = ""
+  end
+
   puts
   puts
   puts "\033[30;47m Команда  Описание \033[39;49m"

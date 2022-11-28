@@ -12,15 +12,28 @@ class Train
   end
 
   def initialize(number)
-    if self.instance_of?(Train)
-      raise "Ошибка данных, можно создать только PassengerTrain или CargoTrain"
-    end
     @number = number
     @speed = 0
     @wagons = []
     @route = nil
     @current_station = nil
-    @@trains << self
+  end
+
+  def self.new(*args, &block) # https://microeducate.tech/in-ruby-whats-the-relationship-between-new-and-initialize-how-to-return-nil-while-initializing/
+    new_train = super # initialize
+
+    unless new_train.valid?
+      return RuntimeError.new()
+    else
+      @@trains << new_train
+      return new_train
+    end
+  end
+
+  def valid?
+    validate!
+  rescue RuntimeError => e
+    return false
   end
 
   def number_get
@@ -83,6 +96,14 @@ class Train
   end
 
   protected
+
+  TRAIN_NUMBER_FORMAT = /^(\d|[A-ZА-Я]|Ё){3}-?(\d|[A-ZА-Я]|Ё){2}$/i
+  def validate!
+    raise "Ошибка данных, можно создать только PassengerTrain или CargoTrain" if self.instance_of?(Train)
+    raise "Ошибка. Допустимый формат: три буквы или цифры, " + \
+      + "необязательный дефис, две буквы или цифры после дефиса." unless @number =~ TRAIN_NUMBER_FORMAT
+    true
+  end
 
   # будет вызываться у наследников
   def wagon_is_same_kind?(wagon)

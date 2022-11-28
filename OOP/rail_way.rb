@@ -77,68 +77,77 @@ class RailWay
     self.routes << route
 
 
-    train = CargoTrain.new("000")
-    train.wagon_add(CargoWagon.new)
-    train.wagon_add(CargoWagon.new)
-    train.wagon_add(CargoWagon.new)
-    train.wagon_add(CargoWagon.new)
-    train.wagon_add(CargoWagon.new)
-    self.trains << train
+    train = CargoTrain.new("01А-0А")
+    if train.is_a?(Train)
+      train.wagon_add(CargoWagon.new)
+      train.wagon_add(CargoWagon.new)
+      train.wagon_add(CargoWagon.new)
+      train.wagon_add(CargoWagon.new)
+      train.wagon_add(CargoWagon.new)
+      self.trains << train
+    end
 
-    train = CargoTrain.new("000/2")
-    train.wagon_add(CargoWagon.new)
-    train.wagon_add(CargoWagon.new)
-    train.wagon_add(CargoWagon.new)
-    train.wagon_add(CargoWagon.new)
-    train.wagon_add(CargoWagon.new)
-    self.trains << train
+    train = CargoTrain.new("02Б-0Б")
+    if train.is_a?(Train)
+      train.wagon_add(CargoWagon.new)
+      train.wagon_add(CargoWagon.new)
+      train.wagon_add(CargoWagon.new)
+      train.wagon_add(CargoWagon.new)
+      train.wagon_add(CargoWagon.new)
+      self.trains << train
+    end
 
+    train = CargoTrain.new("03В-АВ")
+    if train.is_a?(Train)
+      train.wagon_add(CargoWagon.new)
+      train.wagon_add(CargoWagon.new)
+      train.wagon_add(CargoWagon.new)
+      train.wagon_add(CargoWagon.new)
+      train.wagon_add(CargoWagon.new)
+      self.trains << train
 
-    train = CargoTrain.new("001")
-    train.wagon_add(CargoWagon.new)
-    train.wagon_add(CargoWagon.new)
-    train.wagon_add(CargoWagon.new)
-    train.wagon_add(CargoWagon.new)
-    train.wagon_add(CargoWagon.new)
-    self.trains << train
+      train.route_set(routes.first)
+      train.curr_station_get.train_arrive(train)
+    end
 
-    train.route_set(routes.first)
-    train.curr_station_get.train_arrive(train)
+    train = PassengerTrain.new("04Г-ЖГ")
+    if train.is_a?(Train)
+      train.wagon_add(PassengerWagon.new)
+      train.wagon_add(PassengerWagon.new)
+      self.trains << train
 
+      train.route_set(routes.last)
+      train.curr_station_get.train_arrive(train)
+    end
 
-    train = PassengerTrain.new("002")
-    train.wagon_add(PassengerWagon.new)
-    train.wagon_add(PassengerWagon.new)
-    self.trains << train
+    train = CargoTrain.new("05Д-4Д")
+    if train.is_a?(Train)
+      train.wagon_add(CargoWagon.new)
+      train.wagon_add(CargoWagon.new)
+      train.wagon_add(CargoWagon.new)
+      self.trains << train
 
-    train.route_set(routes.last)
-    train.curr_station_get.train_arrive(train)
+      train.route_set(routes.first)
+      train.curr_station_get.train_arrive(train)
+    end
 
+    train = PassengerTrain.new("06Е-АЕ")
+    if train.is_a?(Train)
+      self.trains << train
 
-    train = CargoTrain.new("003")
-    train.wagon_add(CargoWagon.new)
-    train.wagon_add(CargoWagon.new)
-    train.wagon_add(CargoWagon.new)
-    self.trains << train
+      train.manufacturer = "manufacturer_caption"
+      raise "Ошибка проверки доработок task225829 manufacturer" if train.manufacturer != "manufacturer_caption"
+    end
 
-    train.route_set(routes.first)
-    train.curr_station_get.train_arrive(train)
+    raise "Ошибка проверки доработок task225829" unless Train.new("987-ZA").instance_of?(RuntimeError)
 
-
-    train = PassengerTrain.new("004")
-    self.trains << train
-
-
-    train.manufacturer = "manufacturer_caption"
     raise "Ошибка проверки доработок task225829" if (
       Train.find(trains[2]).number_get != trains[2].number_get ||
-      Station.all.count != 5 ||
-      train.manufacturer != "manufacturer_caption" ||
-      Station.instances != 5 ||
-      Route.instances != 3 ||
+      # Station.all.count != 5 ||
+      # Station.instances != 5 ||
+      # Route.instances != 3 ||
       CargoTrain.instances != 4 ||
       PassengerTrain.instances != 2
     )
   end
-
 end
