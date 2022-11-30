@@ -4,13 +4,25 @@ class Route
   include InstanceCounter
 
   def initialize(from, to)
-    if from.is_a?(Station) && to.is_a?(Station) && from.object_id != to.object_id
-      @stations = []
-      @stations << from
-      @stations << to
+    @stations = []
+    @stations << from
+    @stations << to
+  end
+
+  def self.new(*args, &block) # https://microeducate.tech/in-ruby-whats-the-relationship-between-new-and-initialize-how-to-return-nil-while-initializing/
+    new_route = super # initialize
+
+    unless new_route.valid?
+      return RuntimeError.new()
     else
-      raise "Ошибка данных, неправильный тип параметров #{[from.class, to.class]}, возможно только: Station"
+      return new_route
     end
+  end
+
+  def valid?
+    validate!
+  rescue RuntimeError => e
+    return false
   end
 
   def title
@@ -50,4 +62,14 @@ class Route
     @stations[from_station_index - 1] if from_station_index && from_station_index > 0
   end
 
+  protected
+
+  def validate!
+    raise "Ошибка данных, неправильный тип(ы) параметра(ов) #{[@stations.first.class, @stations.last.class]}, " + \
+          "возможно только: Station" unless @stations.first.is_a?(Station) && @stations.last.is_a?(Station)
+    raise "Ошибка данных, начальная и конечная " + \
+          "станции должны быть разными" if @stations.first.object_id == @stations.last.object_id
+
+    true
+  end
 end

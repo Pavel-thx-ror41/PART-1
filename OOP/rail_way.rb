@@ -57,27 +57,30 @@ class RailWay
 
 
     route = Route.new(stations.first, stations.last)
-
-    route.station_insert(stations[1], stations.last)
-    route.station_insert(stations[2], stations.last)
-    route.station_insert(stations[3], stations.last)
-    route.station_remove(stations[3])
-    route.station_remove(stations[2])
-    route.station_remove(stations[1])
-
-    route.station_insert(stations[1], stations.last)
-    route.station_insert(stations[2], stations.last)
-    route.station_insert(stations[3], stations.last)
-    self.routes << route
-
-
-    route = Route.new(stations[2], stations[4])
-    route.station_insert(stations[3], stations[4])
-    self.routes << route
+    if route.is_a?(Route)
+      route.station_insert(stations[1], stations.last)
+      route.station_insert(stations[2], stations.last)
+      route.station_insert(stations[3], stations.last)
+      route.station_remove(stations[3])
+      route.station_remove(stations[2])
+      route.station_remove(stations[1])
+      route.station_insert(stations[1], stations.last)
+      route.station_insert(stations[2], stations.last)
+      route.station_insert(stations[3], stations.last)
+      self.routes << route
+    end
 
     route = Route.new(stations[2], stations[4])
-    route.station_insert(stations[3], stations[4])
-    self.routes << route
+    if route.is_a?(Route)
+      route.station_insert(stations[3], stations[4])
+      self.routes << route
+    end
+
+    route = Route.new(stations[1], stations[4])
+    if route.is_a?(Route)
+      route.station_insert(stations[3], stations[4])
+      self.routes << route
+    end
 
 
     train = CargoTrain.new("01А-0А")
@@ -144,11 +147,13 @@ class RailWay
 
     raise "Ошибка проверки доработок task225829" unless Train.new("987-ZA").instance_of?(RuntimeError)
 
-    raise "Ошибка проверки доработок task225829" if (
-      Train.find(trains[2]).number_get != trains[2].number_get ||
+    raise "Ошибка проверки доработок" if (
       # Station.all.count != 5 ||
       # Station.instances != 5 ||
-      # Route.instances != 3 ||
+      Route.instances != 3 ||
+      routes.count != 3 ||
+
+      Train.find(trains[2]).number_get != trains[2].number_get ||
       CargoTrain.instances != 4 ||
       PassengerTrain.instances != 2
     )
