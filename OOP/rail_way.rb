@@ -65,8 +65,14 @@ class RailWay
 
     # @station_not_in_route = Station.new('Ильская')
 
-    raise "Ошибка проверки доработок. Название Станции должно быть " + \
+    raise "Ошибка проверки доработок Station. Название Станции должно быть " + \
           "от 2-х до 32 буквы, цифры, пробел" unless Station.new("1").instance_of?(RuntimeError)
+
+    raise "Ошибка проверки доработок Station" if (
+      Station.instances != 5 ||
+      Station.all.count != 5 ||
+      stations.count != 5
+    )
 
 
     route = Route.new(stations.first, stations.last)
@@ -95,16 +101,23 @@ class RailWay
       self.routes << route
     end
 
-    raise "Ошибка проверки доработок. " + \
-          "Можно создать только CargoWagon или PassengerWagon" unless Wagon.new.instance_of?(RuntimeError)
+    raise "Ошибка проверки доработок Route" if (
+        Route.instances != 3 ||
+        routes.count != 3
+    )
 
-    train = CargoTrain.new("01А-0А")
+
+    raise "Ошибка проверки доработок Wagon. " + \
+      "Можно создать только CargoWagon или PassengerWagon" unless Wagon.new.instance_of?(RuntimeError)
+
+
+    train = PassengerTrain.new("01А-0А")
     if train.is_a?(Train)
-      train.wagon_add(CargoWagon.new)
-      train.wagon_add(CargoWagon.new)
-      train.wagon_add(CargoWagon.new)
-      train.wagon_add(CargoWagon.new)
-      train.wagon_add(CargoWagon.new)
+      train.wagon_add(PassengerWagon.new)
+      train.wagon_add(PassengerWagon.new)
+      train.wagon_add(PassengerWagon.new)
+      train.wagon_add(PassengerWagon.new)
+      train.wagon_add(PassengerWagon.new)
       self.trains << train
     end
 
@@ -157,22 +170,16 @@ class RailWay
       self.trains << train
 
       train.manufacturer = "manufacturer_caption"
-      raise "Ошибка проверки доработок task225829 manufacturer" if train.manufacturer != "manufacturer_caption"
+      raise "Ошибка проверки доработок Manufacturer" if train.manufacturer != "manufacturer_caption"
     end
 
-    raise "Ошибка проверки доработок task225829" unless Train.new("987-ZA").instance_of?(RuntimeError)
+    raise "Ошибка проверки доработок Train" unless Train.new("987-ZA").instance_of?(RuntimeError)
 
-    raise "Ошибка проверки доработок" if (
-      Station.instances != 5 ||
-      Station.all.count != 5 ||
-      stations.count != 5 ||
-
-      Route.instances != 3 ||
-      routes.count != 3 ||
-
+    raise "Ошибка проверки доработок Train" if (
       Train.find(trains[2]).number_get != trains[2].number_get ||
-      CargoTrain.instances != 4 ||
-      PassengerTrain.instances != 2
+      CargoTrain.instances != 3 ||
+      PassengerTrain.instances != 3 ||
+      trains.count != 6
     )
   end
 end

@@ -56,7 +56,7 @@ MENU = [
   {
     command: "П+П",
     caption: "Добавление ПассажирскогоПоезда",
-    description: "Поезд создать (Пассажирский), например: \033[1mП+П 007\033[22m",
+    description: "Поезд создать (Пассажирский), например: \033[1mП+П 007-АЖ\033[22m",
     object_create: "PassengerTrain",
     object_create_params: { "number" => ".squeeze(' ').strip" },
     target_list: "@railway.trains"
@@ -64,7 +64,7 @@ MENU = [
   {
     command: "П+Г",
     caption: "Добавление ГрузовогоПоезда",
-    description: "Поезд создать (Грузовой), например: \033[1mП+Г 009\033[22m",
+    description: "Поезд создать (Грузовой), например: \033[1mП+Г 009-АИ\033[22m",
     object_create: "CargoTrain",
     object_create_params: { "number" => ".squeeze(' ').strip" },
     target_list: "@railway.trains"
@@ -72,7 +72,7 @@ MENU = [
   {
     command: "П<М",
     caption: "Назначить Поезду Маршрут",
-    description: "Поезду назначить Маршрут, например: \033[1mП<М 004, Москва - Горячий ключ\033[22m",
+    description: "Поезду назначить Маршрут, например: \033[1mП<М 04Г-ЖГ, Москва - Горячий ключ\033[22m",
     call_one_of_list: "@railway.trains",
     call_one_of_list_filter: { "number_get" => "[0]" },
     call_one_of_list_method: "route_set",
@@ -81,7 +81,7 @@ MENU = [
   {
     command: "ПМВ",
     caption: "Поезд по Маршруту вперёд",
-    description: "Поезд по Маршруту вперёд, например: \033[1mПМВ 003\033[22m",
+    description: "Поезд по Маршруту вперёд, например: \033[1mПМВ 03В-АВ\033[22m",
     call_one_of_list: "@railway.trains",
     call_one_of_list_filter: { "number_get" => "[0]" },
     call_one_of_list_method: "route_move_next_station",
@@ -89,7 +89,7 @@ MENU = [
   {
     command: "ПМН",
     caption: "Поезд по Маршруту назад",
-    description: "Поезд по Маршруту назад, например: \033[1mПМН 003\033[22m",
+    description: "Поезд по Маршруту назад, например: \033[1mПМН 03В-АВ\033[22m",
     call_one_of_list: "@railway.trains",
     call_one_of_list_filter: { "number_get" => "[0]" },
     call_one_of_list_method: "route_move_prev_station",
@@ -97,7 +97,7 @@ MENU = [
   {
     command: "ПВ+П",
     caption: "Поезд Вагон добавить пассажирский",
-    description: "Поезд Вагон пассажирский добавить, например: \033[1mПВ+П 004\033[22m",
+    description: "Поезд Вагон пассажирский добавить, например: \033[1mПВ+П 01А-0А\033[22m",
     call_one_of_list: "@railway.trains",
     call_one_of_list_filter: { "number_get" => "[0]" },
     call_one_of_list_method: "wagon_add(PassengerWagon.new)",
@@ -105,7 +105,7 @@ MENU = [
   {
     command: "ПВ+Г",
     caption: "Поезд Вагон добавить грузовой",
-    description: "Поезд Вагон грузовой добавить, например: \033[1mПВ+Г 003\033[22m",
+    description: "Поезд Вагон грузовой добавить, например: \033[1mПВ+Г 02Б-0Б\033[22m",
     call_one_of_list: "@railway.trains",
     call_one_of_list_filter: { "number_get" => "[0]" },
     call_one_of_list_method: "wagon_add(CargoWagon.new)",
@@ -113,7 +113,7 @@ MENU = [
   {
     command: "ПВ-",
     caption: "Поезд Вагон отцепить",
-    description: "Поезд Вагон отцепить, например: \033[1mПВ- 003\033[22m",
+    description: "Поезд Вагон отцепить, например: \033[1mПВ- 02Б-0Б\033[22m",
     call_one_of_list: "@railway.trains",
     call_one_of_list_filter: { "number_get" => "[0]" },
     call_one_of_list_method: "wagon_remove",
@@ -130,6 +130,7 @@ MENU = [
   },
   {
     command: "М+",
+    caption: "Маршрут создать",
     description: "Маршрут создать, например: \033[1mМ+ Воронеж, Краснодар\033[22m",
     object_create: "Route",
     object_create_params_lookup: { "from" => {"@railway.stations" => "title"}, "to" => {"@railway.stations" => "title"} },
