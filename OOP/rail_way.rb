@@ -82,6 +82,8 @@ class RailWay
       self.routes << route
     end
 
+    raise "Ошибка проверки доработок. " + \
+          "Можно создать только CargoWagon или PassengerWagon" unless Wagon.new.instance_of?(RuntimeError)
 
     train = CargoTrain.new("01А-0А")
     if train.is_a?(Train)
