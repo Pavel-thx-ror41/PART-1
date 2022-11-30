@@ -209,7 +209,7 @@ def execute_command(menu_selected: nil, input: nil)
         next_command = ""
       end
     else
-      raise "Ошибка данных. В меню типа object_create должны присутствовать object_create_params или object_create_params_lookup"
+      raise "Ошибка формата в MENU. В меню типа object_create должны присутствовать object_create_params или object_create_params_lookup"
     end
 
     target_list_after = eval(eval_command)
