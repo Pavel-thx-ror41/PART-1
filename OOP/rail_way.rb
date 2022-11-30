@@ -20,25 +20,28 @@ class RailWay
     seed() if seed
   end
 
-  def show
-    puts
-    puts " \033[1mСтанции\033[0m"
+  def status
+    result_string = "\n"
+    result_string << "\n" << " \033[1mСтанции\033[0m"
     self.stations.each do |station|
-      puts "  #{station.title}" +
-           "   (поезда на станции: #{station.trains_get.map(&:number_get).join(", ")})"
+      result_string << "\n" << "  #{station.title}" +
+                               "   (поезда на станции: #{station.trains_get.map(&:number_get).join(", ")})"
     end
 
-    puts
-    puts " \033[1mМаршруты\033[0m"
-    self.routes.each { |route| puts "  #{route.title}   (#{route.stations_get.map(&:title).join(", ")})" }
+    result_string << "\n"
+    result_string << "\n" << " \033[1mМаршруты\033[0m"
+    self.routes.each do |route|
+      result_string << "\n" << "  #{route.title}   (#{route.stations_get.map(&:title).join(", ")})"
+    end
 
-    puts
-    puts " \033[1mПоезда\033[0m"
+    result_string << "\n"
+    result_string << "\n" << " \033[1mПоезда\033[0m"
     self.trains.each do |train|
-      puts "  #{train.number_get} #{train.route_get&.title}" +
-             "   (#{train.type_get.to_s.gsub("cargo", "ГРУЗОВОЙ").gsub("passenger", "ПАССАЖИРСКИЙ")}" +
-             ", #{train.wagons_count} вагонов, на станции #{train.curr_station_get&.title})"
+      result_string << "\n" << "  #{train.number_get} #{train.route_get&.title}" +
+                               "   (#{train.type_get.to_s.gsub("cargo", "ГРУЗОВОЙ").gsub("passenger", "ПАССАЖИРСКИЙ")}" +
+                               ", #{train.wagons_count} вагонов, на станции #{train.curr_station_get&.title})"
     end
+    result_string
   end
 
   private

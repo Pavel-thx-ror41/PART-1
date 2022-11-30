@@ -15,7 +15,7 @@ MENU = [
     caption: "Диспетчерская",
     description: "Диспетчерская (посмотреть всю дорогу)",
     call_one_of_list: "@railway",
-    call_one_of_list_method: "show"
+    call_one_of_list_method: "status"
   },
 
   { caption: " " },
@@ -269,9 +269,11 @@ def execute_command(menu_selected: nil, input: nil)
     end
 
     if call_object # .class = Train
-      call_object_method_params.empty? ?
+      call_object_method_result = call_object_method_params.empty? ?
         call_object.instance_eval(call_object_method) :
         call_object.send(call_object_method, *call_object_method_params)
+
+      puts call_object_method_result if call_object_method_result.is_a?(String)
     end
     command = COMMAND_INFO
 
