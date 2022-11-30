@@ -9,10 +9,10 @@ module InstanceCounter
 
   module Initializer
     # @@instances_counts ||= {}
-    def initialize(*args)
+    def initialize(*args, &block)
       # @@instances_counts ||= {}
-      register_instance
-      super(*args)
+      super(*args, &block)
+      register_instance if valid?
     end
   end
 
@@ -24,7 +24,13 @@ module InstanceCounter
 
   module InstanceMethods
     # @@instances_counts ||= {}
+
+    def valid?
+      raise NotImplementedError
+    end
+
     protected
+
     def register_instance
       register_instance_set(:@@instances_counts)
     end

@@ -48,12 +48,25 @@ class RailWay
 
   # вызывается только из initialize
   def seed
-    self.stations << Station.new('Москва')
-    self.stations << Station.new('Воронеж')
-    self.stations << Station.new('Ростов на Дону')
-    self.stations << Station.new('Краснодар')
-    self.stations << Station.new('Горячий ключ')
+    station = Station.new('Москва')
+    stations << station if station.is_a?(Station)
+
+    station = Station.new('Воронеж')
+    stations << station if station.is_a?(Station)
+
+    station = Station.new('Ростов на Дону')
+    stations << station if station.is_a?(Station)
+
+    station = Station.new('Краснодар')
+    stations << station if station.is_a?(Station)
+
+    station = Station.new('Горячий ключ')
+    stations << station if station.is_a?(Station)
+
     # @station_not_in_route = Station.new('Ильская')
+
+    raise "Ошибка проверки доработок. Название Станции должно быть " + \
+          "от 2-х до 32 буквы, цифры, пробел" unless Station.new("1").instance_of?(RuntimeError)
 
 
     route = Route.new(stations.first, stations.last)
@@ -150,8 +163,10 @@ class RailWay
     raise "Ошибка проверки доработок task225829" unless Train.new("987-ZA").instance_of?(RuntimeError)
 
     raise "Ошибка проверки доработок" if (
-      # Station.all.count != 5 ||
-      # Station.instances != 5 ||
+      Station.instances != 5 ||
+      Station.all.count != 5 ||
+      stations.count != 5 ||
+
       Route.instances != 3 ||
       routes.count != 3 ||
 

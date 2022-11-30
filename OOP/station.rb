@@ -11,13 +11,25 @@ class Station
   end
 
   def initialize(title)
-    if title.to_s.length > 0
-      @title = title
-    else
-      raise "Ошибка данных, в названии: #{type}, должно быть хоть какое-то значение"
-    end
+    @title = title
     @trains = []
-    @@stations << self
+  end
+
+  def self.new(*args, &block) # https://microeducate.tech/in-ruby-whats-the-relationship-between-new-and-initialize-how-to-return-nil-while-initializing/
+    new_station = super(*args, &block) # initialize
+
+    unless new_station.valid?
+      return RuntimeError.new()
+    else
+      @@stations << new_station
+      return new_station
+    end
+  end
+
+  def valid?
+    validate!
+  rescue RuntimeError => e
+    return false
   end
 
   def title
@@ -53,4 +65,11 @@ class Station
     end
   end
 
+  private
+
+  STATION_TITLE_FORMAT = /^(\d|[A-ZА-Я]|Ё| ){2,32}$/i
+  def validate!
+    raise "Ошибка. Допустимый формат: от 2-х до 32 буквы, цифры, пробел" unless @title =~ STATION_TITLE_FORMAT
+    true
+  end
 end
