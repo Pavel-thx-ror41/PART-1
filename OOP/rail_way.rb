@@ -21,20 +21,20 @@ class RailWay
   end
 
   def status
-    result_string = "\n"
+    result_string = ""
     result_string << "\n" << " \033[1mСтанции\033[0m"
     self.stations.each do |station|
       result_string << "\n" << "  #{station.title}" +
                                "   (поезда на станции: #{station.trains_get.map(&:number_get).join(", ")})"
     end
 
-    result_string << "\n"
+    result_string << ""
     result_string << "\n" << " \033[1mМаршруты\033[0m"
     self.routes.each do |route|
       result_string << "\n" << "  #{route.title}   (#{route.stations_get.map(&:title).join(", ")})"
     end
 
-    result_string << "\n"
+    result_string << ""
     result_string << "\n" << " \033[1mПоезда\033[0m"
     self.trains.each do |train|
       result_string << "\n" << "  #{train.number_get} #{train.route_get&.title}" +
@@ -48,25 +48,19 @@ class RailWay
 
   # вызывается только из initialize
   def seed
-    station = Station.new('Москва')
-    stations << station if station.is_a?(Station)
-
-    station = Station.new('Воронеж')
-    stations << station if station.is_a?(Station)
-
-    station = Station.new('Ростов на Дону')
-    stations << station if station.is_a?(Station)
-
-    station = Station.new('Краснодар')
-    stations << station if station.is_a?(Station)
-
-    station = Station.new('Горячий ключ')
-    stations << station if station.is_a?(Station)
-
+    stations << Station.new('Москва')
+    stations << Station.new('Воронеж')
+    stations << Station.new('Ростов на Дону')
+    stations << Station.new('Краснодар')
+    stations << Station.new('Горячий ключ')
     # @station_not_in_route = Station.new('Ильская')
 
+    begin
+      station = Station.new('М')
+    rescue RuntimeError => e
+    end
     raise "Ошибка проверки доработок Station. Название Станции должно быть " + \
-          "от 2-х до 32 буквы, цифры, пробел" unless Station.new("1").instance_of?(RuntimeError)
+          "от 2-х до 32 буквы, цифры, пробел" if station
 
     raise "Ошибка проверки доработок Station" if (
       Station.instances != 5 ||
@@ -75,8 +69,8 @@ class RailWay
     )
 
 
-    route = Route.new(stations.first, stations.last)
-    if route.is_a?(Route)
+    begin
+      route = Route.new(stations.first, stations.last)
       route.station_insert(stations[1], stations.last)
       route.station_insert(stations[2], stations.last)
       route.station_insert(stations[3], stations.last)
@@ -87,18 +81,18 @@ class RailWay
       route.station_insert(stations[2], stations.last)
       route.station_insert(stations[3], stations.last)
       self.routes << route
-    end
 
-    route = Route.new(stations[2], stations[4])
-    if route.is_a?(Route)
+      route = Route.new(stations[2], stations[4])
       route.station_insert(stations[3], stations[4])
       self.routes << route
-    end
 
-    route = Route.new(stations[1], stations[4])
-    if route.is_a?(Route)
+      route = Route.new(stations[1], stations[4])
       route.station_insert(stations[3], stations[4])
       self.routes << route
+
+    rescue RuntimeError => e
+      puts e
+      exit
     end
 
     raise "Ошибка проверки доработок Route" if (
@@ -107,73 +101,69 @@ class RailWay
     )
 
 
-    raise "Ошибка проверки доработок Wagon. " + \
-      "Можно создать только CargoWagon или PassengerWagon" unless Wagon.new.instance_of?(RuntimeError)
-
-
-    train = PassengerTrain.new("01А-0А")
-    if train.is_a?(Train)
-      train.wagon_add(PassengerWagon.new)
-      train.wagon_add(PassengerWagon.new)
-      train.wagon_add(PassengerWagon.new)
-      train.wagon_add(PassengerWagon.new)
-      train.wagon_add(PassengerWagon.new)
-      self.trains << train
+    begin
+      wagon = nil
+      wagon = Wagon.new
+    rescue RuntimeError => e
     end
+    raise "Ошибка проверки доработок Wagon. Можно создать только CargoWagon или PassengerWagon" if wagon
 
-    train = CargoTrain.new("02Б-0Б")
-    if train.is_a?(Train)
+
+    begin
+      train = PassengerTrain.new("01А-0А")
+      train.wagon_add(PassengerWagon.new)
+      train.wagon_add(PassengerWagon.new)
+      train.wagon_add(PassengerWagon.new)
+      train.wagon_add(PassengerWagon.new)
+      train.wagon_add(PassengerWagon.new)
+      self.trains << train
+
+      train = CargoTrain.new("02Б-0Б")
       train.wagon_add(CargoWagon.new)
       train.wagon_add(CargoWagon.new)
       train.wagon_add(CargoWagon.new)
       train.wagon_add(CargoWagon.new)
       train.wagon_add(CargoWagon.new)
       self.trains << train
-    end
 
-    train = CargoTrain.new("03В-АВ")
-    if train.is_a?(Train)
+      train = CargoTrain.new("03В-АВ")
       train.wagon_add(CargoWagon.new)
       train.wagon_add(CargoWagon.new)
       train.wagon_add(CargoWagon.new)
       train.wagon_add(CargoWagon.new)
       train.wagon_add(CargoWagon.new)
       self.trains << train
-
       train.route_set(routes.first)
-      train.curr_station_get.train_arrive(train)
-    end
 
-    train = PassengerTrain.new("04Г-ЖГ")
-    if train.is_a?(Train)
+      train = PassengerTrain.new("04Г-ЖГ")
       train.wagon_add(PassengerWagon.new)
       train.wagon_add(PassengerWagon.new)
       self.trains << train
-
       train.route_set(routes.last)
-      train.curr_station_get.train_arrive(train)
-    end
 
-    train = CargoTrain.new("05Д-4Д")
-    if train.is_a?(Train)
+      train = CargoTrain.new("05Д-4Д")
       train.wagon_add(CargoWagon.new)
       train.wagon_add(CargoWagon.new)
       train.wagon_add(CargoWagon.new)
       self.trains << train
-
       train.route_set(routes.first)
-      train.curr_station_get.train_arrive(train)
-    end
 
-    train = PassengerTrain.new("06Е-АЕ")
-    if train.is_a?(Train)
+      train = PassengerTrain.new("06Е-АЕ")
       self.trains << train
-
       train.manufacturer = "manufacturer_caption"
       raise "Ошибка проверки доработок Manufacturer" if train.manufacturer != "manufacturer_caption"
+
+    rescue RuntimeError => e
+      puts e
+      exit
     end
 
-    raise "Ошибка проверки доработок Train" unless Train.new("987-ZA").instance_of?(RuntimeError)
+    begin
+      train = nil
+      train = Train.new("987-ZA")
+    rescue RuntimeError => e
+    end
+    raise "Поезд должен быть PassengerTrain или CargoTrain, не Train" if train
 
     raise "Ошибка проверки доработок Train" if (
       Train.find(trains[2]).number_get != trains[2].number_get ||

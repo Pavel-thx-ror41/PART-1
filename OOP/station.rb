@@ -18,18 +18,13 @@ class Station
   def self.new(*args, &block) # https://microeducate.tech/in-ruby-whats-the-relationship-between-new-and-initialize-how-to-return-nil-while-initializing/
     new_station = super(*args, &block) # initialize
 
-    unless new_station.valid?
-      return RuntimeError.new()
-    else
-      @@stations << new_station
-      return new_station
-    end
+    new_station.valid?
+    @@stations << new_station
+    return new_station
   end
 
   def valid?
     validate!
-  rescue RuntimeError => e
-    return false
   end
 
   def title
@@ -37,11 +32,11 @@ class Station
   end
 
   def train_arrive(train)
-    if train.is_a?(Train) && !@trains.index(train)
+    if (train.is_a?(PassengerTrain) || train.is_a?(CargoTrain)) && !@trains.index(train)
       @trains << train
     else
       raise "Ошибка данных. "\
-            "Неправильный тип параметров: #{train.class}, требуется: Train, "\
+            "Неправильный тип параметров: #{train.class}, требуется: PassengerTrain или CargoTrain, "\
             "или эта станция не следующая по маршруту, уже в списке поездов на станции"
     end
   end
@@ -56,11 +51,11 @@ class Station
 
   # Может отправлять поезда (по одному за раз, при этом, поезд удаляется из списка поездов, находящихся на станции).
   def train_depart(train)
-    if train.is_a?(Train) && @trains.index(train) && train.curr_station_get == self
+    if (train.is_a?(PassengerTrain) || train.is_a?(CargoTrain)) && @trains.index(train) && train.curr_station_get == self
       @trains.delete(train)
     else
       raise "Ошибка данных. "\
-            "Неправильный тип параметров: #{train.class}, требуется: Train, "\
+            "Неправильный тип параметров: #{train.class}, требуется: PassengerTrain или CargoTrain, "\
             "или эта станция не текущая для поезда, или не в списке поездов на станции"
     end
   end

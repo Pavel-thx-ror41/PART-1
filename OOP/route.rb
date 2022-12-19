@@ -12,17 +12,12 @@ class Route
   def self.new(*args, &block) # https://microeducate.tech/in-ruby-whats-the-relationship-between-new-and-initialize-how-to-return-nil-while-initializing/
     new_route = super # initialize
 
-    unless new_route.valid?
-      return RuntimeError.new()
-    else
-      return new_route
-    end
+    new_route.valid?
+    return new_route
   end
 
   def valid?
     validate!
-  rescue RuntimeError => e
-    return false
   end
 
   def title
@@ -40,11 +35,16 @@ class Route
   end
 
   def station_remove(station)
-    if station.is_a?(Station) && @stations.first != station && @stations.last != station && @stations.index(station)
-      @stations.delete(station)
+    error_message = ""
+    error_message << ", нельзя удалять конечные станции" if @stations.first == station || @stations.last == station
+    error_message << ", станция не найдена в списке" unless @stations.index(station)
+    error_message << ", не правильный тип параметров #{station.class}, возможно только: Station" unless station.is_a?(Station)
+
+    unless error_message.empty?
+      error_message = "Ошибка данных" + error_message
+      raise error_message
     else
-      raise "Ошибка данных, не правильный тип параметров #{station.class},"\
-            " возможно только: Station. Также, нельзя удалять конечные станции"
+      @stations.delete(station)
     end
   end
 

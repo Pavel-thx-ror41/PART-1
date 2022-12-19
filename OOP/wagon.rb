@@ -6,17 +6,12 @@ class Wagon
   def self.new(*args, &block) # https://microeducate.tech/in-ruby-whats-the-relationship-between-new-and-initialize-how-to-return-nil-while-initializing/
     new_wagon = super # initialize
 
-    unless new_wagon.valid?
-      return RuntimeError.new()
-    else
-      return new_wagon
-    end
+    new_wagon.valid?
+    return new_wagon
   end
 
   def valid?
     validate!
-  rescue RuntimeError => e
-    return false
   end
 
   protected

@@ -22,18 +22,13 @@ class Train
   def self.new(*args, &block) # https://microeducate.tech/in-ruby-whats-the-relationship-between-new-and-initialize-how-to-return-nil-while-initializing/
     new_train = super # initialize
 
-    unless new_train.valid?
-      return RuntimeError.new()
-    else
-      @@trains << new_train
-      return new_train
-    end
+    new_train.valid?
+    @@trains << new_train
+    return new_train
   end
 
   def valid?
     validate!
-  rescue RuntimeError => e
-    return false
   end
 
   def number_get
@@ -65,13 +60,18 @@ class Train
   end
 
   def wagon_add(wagon)
-    @wagons << wagon if stopped? && wagon_is_same_kind?(wagon)
+    if stopped? && wagon_is_same_kind?(wagon)
+      @wagons << wagon
+    else
+      raise "Ошибка данных, тип Вагона не соответствует типу Поезда"
+    end
   end
 
   def route_set(route)
     if route.is_a?(Route) && route.stations_get.first.is_a?(Station)
       @route = route
       @current_station = @route.stations_get.first
+      @current_station.train_arrive(self)
     else
       raise "Ошибка данных, тип параметра route: #{route.class}, должен быть Route, с первым элементом Station"
     end
@@ -83,12 +83,24 @@ class Train
 
   def route_move_next_station
     next_station = @route.station_get_next_from(@current_station)
-    @current_station = next_station if next_station
+    if next_station
+      @current_station.train_depart(self)
+      @current_station = next_station
+      @current_station.train_arrive(self)
+    else
+      raise "Ошибка. Нет следующей станции."
+    end
   end
 
   def route_move_prev_station
     prev_station = @route.station_get_prev_from(@current_station)
-    @current_station = prev_station if prev_station
+    if prev_station
+      @current_station.train_depart(self)
+      @current_station = prev_station
+      @current_station.train_arrive(self)
+    else
+      raise "Ошибка. Нет предыдущей станции."
+    end
   end
 
   def curr_station_get
