@@ -4,13 +4,20 @@ class Route
   include InstanceCounter
 
   def initialize(from, to)
-    if from.is_a?(Station) && to.is_a?(Station) && from.object_id != to.object_id
-      @stations = []
-      @stations << from
-      @stations << to
-    else
-      raise "Ошибка данных, неправильный тип параметров #{[from.class, to.class]}, возможно только: Station"
-    end
+    @stations = []
+    @stations << from
+    @stations << to
+  end
+
+  def self.new(*args, &block) # https://microeducate.tech/in-ruby-whats-the-relationship-between-new-and-initialize-how-to-return-nil-while-initializing/
+    new_route = super # initialize
+
+    new_route.valid?
+    return new_route
+  end
+
+  def valid?
+    validate!
   end
 
   def title
@@ -28,11 +35,16 @@ class Route
   end
 
   def station_remove(station)
-    if station.is_a?(Station) && @stations.first != station && @stations.last != station && @stations.index(station)
-      @stations.delete(station)
+    error_message = ""
+    error_message << ", нельзя удалять конечные станции" if @stations.first == station || @stations.last == station
+    error_message << ", станция не найдена в списке" unless @stations.index(station)
+    error_message << ", не правильный тип параметров #{station.class}, возможно только: Station" unless station.is_a?(Station)
+
+    unless error_message.empty?
+      error_message = "Ошибка данных" + error_message
+      raise error_message
     else
-      raise "Ошибка данных, не правильный тип параметров #{station.class},"\
-            " возможно только: Station. Также, нельзя удалять конечные станции"
+      @stations.delete(station)
     end
   end
 
@@ -50,4 +62,14 @@ class Route
     @stations[from_station_index - 1] if from_station_index && from_station_index > 0
   end
 
+  protected
+
+  def validate!
+    raise "Ошибка данных, неправильный тип(ы) параметра(ов) #{[@stations.first.class, @stations.last.class]}, " + \
+          "возможно только: Station" unless @stations.first.is_a?(Station) && @stations.last.is_a?(Station)
+    raise "Ошибка данных, начальная и конечная " + \
+          "станции должны быть разными" if @stations.first.object_id == @stations.last.object_id
+
+    true
+  end
 end
