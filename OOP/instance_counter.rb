@@ -25,6 +25,7 @@ module InstanceCounter
   module InstanceMethods
     # @@instances_counts ||= {}
 
+    # проверяем реализацию, используется в тут в initialize
     def valid?
       raise NotImplementedError
     end

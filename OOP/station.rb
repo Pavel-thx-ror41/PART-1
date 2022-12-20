@@ -13,16 +13,12 @@ class Station
   def initialize(title)
     @title = title
     @trains = []
+
+    validate!
+    @@stations << self
   end
 
-  def self.new(*args, &block) # https://microeducate.tech/in-ruby-whats-the-relationship-between-new-and-initialize-how-to-return-nil-while-initializing/
-    new_station = super(*args, &block) # initialize
-
-    new_station.valid?
-    @@stations << new_station
-    return new_station
-  end
-
+  # используется в InstanceCounter в initialize
   def valid?
     validate!
   end

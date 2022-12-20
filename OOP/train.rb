@@ -17,16 +17,12 @@ class Train
     @wagons = []
     @route = nil
     @current_station = nil
+
+    validate!
+    @@trains << self
   end
 
-  def self.new(*args, &block) # https://microeducate.tech/in-ruby-whats-the-relationship-between-new-and-initialize-how-to-return-nil-while-initializing/
-    new_train = super # initialize
-
-    new_train.valid?
-    @@trains << new_train
-    return new_train
-  end
-
+  # используется в InstanceCounter в initialize
   def valid?
     validate!
   end

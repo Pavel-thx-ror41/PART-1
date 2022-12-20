@@ -7,15 +7,11 @@ class Route
     @stations = []
     @stations << from
     @stations << to
+
+    validate!
   end
 
-  def self.new(*args, &block) # https://microeducate.tech/in-ruby-whats-the-relationship-between-new-and-initialize-how-to-return-nil-while-initializing/
-    new_route = super # initialize
-
-    new_route.valid?
-    return new_route
-  end
-
+  # используется в InstanceCounter в initialize
   def valid?
     validate!
   end
