@@ -10,7 +10,7 @@ class Wagon
   protected
 
   def validate!
-    if !self.instance_of?(PassengerWagon) && !self.instance_of?(CargoWagon)
+    unless self.instance_of?(PassengerWagon) || self.instance_of?(CargoWagon)
       raise "Ошибка данных, можно создать только PassengerWagon или CargoWagon"
     end
 
