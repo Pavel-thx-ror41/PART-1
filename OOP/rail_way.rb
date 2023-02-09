@@ -176,5 +176,9 @@ class RailWay
       stations.first.trains_map { |train| "№#{train.number_get}" }.join(" ") != "№03В-АВ №05Д-4Д"
     )
 
+    raise "Ошибка проверки доработок Train.wagons_map" if (
+      stations.first.trains_get.first.wagons_map { |wagon| "Class#{wagon.class.to_s}" }.uniq.first != "ClassCargoWagon"
+    )
+
   end
 end

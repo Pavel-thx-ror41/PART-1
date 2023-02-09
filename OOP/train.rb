@@ -103,6 +103,10 @@ class Train
     @current_station
   end
 
+  def wagons_map(&block)
+    @wagons.map { |wagon| block.call(wagon) } if block_given?
+  end
+
   protected
 
   TRAIN_NUMBER_FORMAT = /^(\d|[A-ZА-Я]|Ё){3}-?(\d|[A-ZА-Я]|Ё){2}$/i
