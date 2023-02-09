@@ -56,6 +56,10 @@ class Station
     end
   end
 
+  def trains_map(&block)
+    @trains.map { |train| block.call(train) } if block_given?
+  end
+
   private
 
   STATION_TITLE_FORMAT = /^(\d|[A-ZА-Я]|Ё| ){2,32}$/i

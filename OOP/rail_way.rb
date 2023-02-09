@@ -171,5 +171,10 @@ class RailWay
       PassengerTrain.instances != 3 ||
       trains.count != 6
     )
+
+    raise "Ошибка проверки доработок Station.trains_map" if (
+      stations.first.trains_map { |train| "№#{train.number_get}" }.join(" ") != "№03В-АВ №05Д-4Д"
+    )
+
   end
 end
