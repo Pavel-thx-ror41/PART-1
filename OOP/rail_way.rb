@@ -158,6 +158,52 @@ class RailWay
       exit
     end
 
+
+    raise "Ошибка проверки доработок Wagons (полезная нагрузка) начальные значения" if (
+      self.trains[0].wagons_map { |w| w.capacity_free }.uniq.first != 36 ||
+      self.trains[0].wagons_map { |w| w.capacity_used }.uniq.first != 0 ||
+      self.trains[1].wagons_map { |w| w.capacity_free }.uniq.first != 50.0 ||
+      self.trains[1].wagons_map { |w| w.capacity_used }.uniq.first != 0.0 ||
+
+      self.trains[3].wagons_map { |w| w.capacity_free }.uniq.first != 36 ||
+      self.trains[3].wagons_map { |w| w.capacity_used }.uniq.first != 0 ||
+      self.trains[2].wagons_map { |w| w.capacity_free }.uniq.first != 50.0 ||
+      self.trains[2].wagons_map { |w| w.capacity_used }.uniq.first != 0.0
+    )
+
+    begin
+      self.trains[0].wagons_map { |w| w.capacity_take(10) }
+      self.trains[0].wagons_map { |w| w.capacity_take_one }
+      self.trains[1].wagons_map { |w| w.capacity_take(10.0) }
+    rescue RuntimeError => e
+      puts "Ошибка проверки доработок Wagons (полезная нагрузка) ожидаемое поведение"
+      puts e
+      exit
+    end
+
+    begin
+      self.trains[3].wagons_map { |w| w.capacity_take(37) }
+    rescue RuntimeError => e
+    end
+
+    begin
+      self.trains[2].wagons_map { |w| w.capacity_take(50.1) }
+    rescue RuntimeError => e
+    end
+
+    raise "Ошибка проверки доработок Wagons (полезная нагрузка) проверка capacity_take" if (
+      self.trains[0].wagons_map { |w| w.capacity_free }.uniq.first != 25 ||
+      self.trains[0].wagons_map { |w| w.capacity_used }.uniq.first != 11 ||
+      self.trains[1].wagons_map { |w| w.capacity_free }.uniq.first != 40.0 ||
+      self.trains[1].wagons_map { |w| w.capacity_used }.uniq.first != 10.0 ||
+
+      self.trains[3].wagons_map { |w| w.capacity_free }.uniq.first != 36 ||
+      self.trains[3].wagons_map { |w| w.capacity_used }.uniq.first != 0 ||
+      self.trains[2].wagons_map { |w| w.capacity_free }.uniq.first != 50.0 ||
+      self.trains[2].wagons_map { |w| w.capacity_used }.uniq.first != 0.0
+    )
+
+
     begin
       train = nil
       train = Train.new("987-ZA")
