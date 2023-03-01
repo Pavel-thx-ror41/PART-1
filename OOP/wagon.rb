@@ -9,6 +9,11 @@ class Wagon
     validate!
   end
 
+  def type_get
+    self.class.to_s.gsub("Wagon","").downcase.to_sym
+  end
+
+
   def capacity_take(volume)
     error_message = ""
     error_message << ", нельзя занять больше доступного: #{capacity_free} " if @capacity_used + volume > @capacity_total
@@ -23,10 +28,6 @@ class Wagon
 
   def capacity_free
     @capacity_total - @capacity_used
-  end
-
-  def capacity_used
-    @capacity_used
   end
 
   protected
