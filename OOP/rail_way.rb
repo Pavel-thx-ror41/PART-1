@@ -24,8 +24,15 @@ class RailWay
     result_string = ""
     result_string << "\n" << " \033[1mСтанции\033[0m"
     self.stations.each do |station|
-      result_string << "\n" << "  #{station.title}" +
-                               "   (поезда на станции: #{station.trains_get.map(&:number_get).join(", ")})"
+      station_trains = []
+      station.trains_get.map do |train|
+        station_trains << "#{train.number_get}" +
+                          " #{train.type_get.to_s.gsub("cargo", "ГРУЗ").gsub("passenger", "ПАС")}" +
+                          " #{train.route_get&.title}" +
+                          " вагонов:#{train.wagons_count}"
+      end
+
+      result_string << "\n" << "  #{station.title} поезда на станции: #{station_trains.join("; ")}"
     end
 
     result_string << ""
@@ -37,9 +44,24 @@ class RailWay
     result_string << ""
     result_string << "\n" << " \033[1mПоезда\033[0m"
     self.trains.each do |train|
-      result_string << "\n" << "  #{train.number_get} #{train.route_get&.title}" +
-                               "   (#{train.type_get.to_s.gsub("cargo", "ГРУЗОВОЙ").gsub("passenger", "ПАССАЖИРСКИЙ")}" +
-                               ", #{train.wagons_count} вагонов, на станции #{train.curr_station_get&.title})"
+      train_wagons_caps = [0,0]
+      train_wagons = []
+      train.wagons_map do |wagon|
+        train_wagons_caps[0] += wagon.capacity_used
+        train_wagons_caps[1] += wagon.capacity_free
+        train_wagons << "№#{train_wagons.size+1}" +
+                        " #{wagon.type_get.to_s.gsub("cargo", "ГРУЗ").gsub("passenger", "ПАС")}" +
+                        " св.:#{wagon.capacity_free}" +
+                        " з.:#{wagon.capacity_used}"
+      end
+      result_string << "\n" << "  #{train.number_get}" +
+                               " '#{train.route_get&.title}'" +
+                               " #{train.type_get.to_s.gsub("cargo", "ГРУЗОВОЙ").gsub("passenger", "ПАССАЖИРСКИЙ")}" +
+                               ", на станции: '#{train.curr_station_get&.title}'" +
+                               ", вагоны: #{train.wagons_count}шт." +
+                               " доступно: #{train_wagons_caps[1]} занято #{train_wagons_caps[0]}" +
+                               " #{train.type_get.to_s.gsub("cargo", "тонн").gsub("passenger", "мест")}" +
+                               "\r\n         (выгоны: #{train_wagons.join("; ")})"
     end
     result_string
   end

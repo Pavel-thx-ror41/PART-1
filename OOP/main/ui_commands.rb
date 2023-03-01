@@ -112,28 +112,28 @@ def execute_command_call_one_of_list(menu_selected, input)
 end
 
 
-def execute_command_show_list_source(menu_selected, input)
+def execute_command_show_list(menu_selected, input)
   next_command = ""
 
   begin
     eval_command = "#{menu_selected[:show_list_source]}"
     input_params_values = input.partition(' ').last.squeeze(' ').delete(";").split(",").map(&:strip).reject(&:empty?)
-    source_list_filter_method = menu_selected[:show_list_source_filter].keys.map(&:to_s).first if menu_selected[:show_list_source_filter]
-    if source_list_filter_method && (input_params_values.count > 0)
+    source_list_each_call = menu_selected[:show_list_source_each_call] if menu_selected[:show_list_source_each_call]
+    if source_list_each_call && (input_params_values.count > 0)
       puts " только для: #{input_params_values.join(", ")}"
-      eval_command += ".select {|source_list_item| #{input_params_values.to_s}.include?(source_list_item.#{source_list_filter_method})}"
+      eval_command += ".select {|source_list_item| #{input_params_values.to_s}.include?(source_list_item.#{source_list_each_call})}"
     end
     source_list_result = eval(eval_command)
 
     puts
     source_list_result.each do |source_list_item|
-      puts "  \033[1m#{source_list_item.send(source_list_filter_method)}\033[22m"
+      puts "  \033[1m#{source_list_item.instance_eval(source_list_each_call)}\033[22m"
 
-      # object_sublist_and_title_methods: { "route_get" => "title"}
+      # object_sublist_and_title_methods: { "route_get" => "sublist_item.title"}
       if menu_selected[:object_sublist_and_title_methods]
-        eval_command = "source_list_item.#{menu_selected[:object_sublist_and_title_methods].keys.first}.map {|item_list| item_list.#{menu_selected[:object_sublist_and_title_methods].values.first} }"
+        eval_command = "source_list_item.#{menu_selected[:object_sublist_and_title_methods].keys.first}.map {|sublist_item| #{menu_selected[:object_sublist_and_title_methods].values.first} }"
         sub_list = eval(eval_command)
-        puts "   " + sub_list.join(", ") if sub_list.count > 0
+        puts "   " + sub_list.join("\n\r   ") if sub_list.count > 0
         puts
       end
     end
@@ -166,9 +166,9 @@ def execute_command(menu_selected: nil, input: nil)
 
   elsif menu_selected[:show_list_source]
     # Отобразить список, со списком вложенных объектов
-    # show_list_source: "@railway.stations", show_list_source_filter: { "title" => "" }, object_sublist_and_title_methods: { "trains_get" => "number_get"}
-    # show_list_source: "@railway.trains", show_list_source_filter: { "number_get" => "" }
-    command, error_message = execute_command_show_list_source(menu_selected, input)
+    # show_list_source: "@railway.stations", show_list_source_each_call: "title", object_sublist_and_title_methods: { "trains_get" => "sublist_item.number_get"}
+    # show_list_source: "@railway.trains", show_list_source_each_call: "number_get"
+    command, error_message = execute_command_show_list(menu_selected, input)
 
   else
     command = ""

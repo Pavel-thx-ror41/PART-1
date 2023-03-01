@@ -18,7 +18,7 @@ MENU = [
     caption: "Станции",
     description: "Станции, просмотреть список",
     show_list_source: "@railway.stations",
-    show_list_source_filter: { "title" => "" }
+    show_list_source_each_call: "title"
   },
   {
     command: "С+",
@@ -33,8 +33,8 @@ MENU = [
     caption: "Станции и Поезда на них",
     description: "Станция, поезда на ней (список поездов на станции(ях), например: \033[1mСП Москва, Воронеж\033[22m или \033[1mСП\033[22m для всех)",
     show_list_source: "@railway.stations",
-    show_list_source_filter: { "title" => "" },
-    object_sublist_and_title_methods: { "trains_get" => "number_get"}
+    show_list_source_each_call: "title",
+    object_sublist_and_title_methods: { "trains_get" => "sublist_item.number_get + ' '  + sublist_item.type_get.to_s.gsub('cargo', 'ГРУЗ').gsub('passenger', 'ПАС') + ' \"' +  sublist_item.route_get&.title + '\" ' + sublist_item.wagons_count.to_s + ' ваг.' + '\n\r      ' + sublist_item.wagons_get.each_with_index.map {|w,i| (i+1).to_s + ' ' + w.type_get.to_s.gsub('cargo', 'ГРУЗ').gsub('passenger', 'ПАС') + ' дост.:' + w.capacity_free.to_s + ' исп.:' + w.capacity_used.to_s }.join('\n\r      ') + '\n\r'"}
   },
 
 
@@ -43,7 +43,7 @@ MENU = [
     caption: "Поезда",
     description: "Поезда, посмотреть список",
     show_list_source: "@railway.trains",
-    show_list_source_filter: { "number_get" => ".strip" }
+    show_list_source_each_call: "'\033[1m' + number_get.to_s + '\033[22m ' + wagons_count.to_s + ' ваг.' + '\n\r      ' + wagons_get.each_with_index.map {|w,i| (i+1).to_s + ' ' + w.type_get.to_s.gsub('cargo', 'ГРУЗ').gsub('passenger', 'ПАС') + ' дост.:' + w.capacity_free.to_s + ' исп.:' + w.capacity_used.to_s }.join('\n\r      ') + '\n\r'"
   },
   {
     command: "П+П",
@@ -110,6 +110,14 @@ MENU = [
     call_one_of_list_filter: { "number_get" => "[0]" },
     call_one_of_list_method: "wagon_remove",
   },
+  {
+    command: "ПВ<",
+    caption: "Поезд Вагон занять места/объём",
+    description: "Поезда Вагон занять места/объём, например: \033[1mПВ< 02Б-0Б, 1, 12\033[22m",
+    call_one_of_list: "@railway.trains",
+    call_one_of_list_filter: { "number_get" => "[0]" },
+    call_one_of_list_method: "wagons_get[input_params_values[1].to_i-1].capacity_take(input_params_values[2].to_f)"
+  },
 
 
   {
@@ -117,7 +125,7 @@ MENU = [
     caption: "Маршруты",
     description: "Маршруты, посмотреть список",
     show_list_source: "@railway.routes",
-    show_list_source_filter: { "title" => "" }
+    show_list_source_each_call: "title"
   },
   {
     command: "М+",
@@ -132,8 +140,8 @@ MENU = [
     caption: "Маршрут(ы), список Станций",
     description: "Маршрут, станции в нём, например: \033[1mМС Москва - Горячий ключ\033[22m или \033[1mМС\033[22m для всех",
     show_list_source: "@railway.routes",
-    show_list_source_filter: { "title" => "" },
-    object_sublist_and_title_methods: { "stations_get" => "title"}
+    show_list_source_each_call: "title",
+    object_sublist_and_title_methods: { "stations_get" => "sublist_item.title"}
   },
   {
     command: "М<С",
