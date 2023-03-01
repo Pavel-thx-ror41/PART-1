@@ -103,6 +103,10 @@ class Train
     @current_station
   end
 
+  def wagons_get
+    @wagons
+  end
+
   def wagons_map(&block)
     @wagons.map { |wagon| block.call(wagon) } if block_given?
   end
