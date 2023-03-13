@@ -1,0 +1,10 @@
+# puts Gem::Specification.find_by_name('rubocop').full_gem_path + '/config/default.yml'
+#   "/home/user/.rbenv/versions/3.1.3/lib/ruby/gems/3.1.0/gems/rubocop-1.48.0/config/default.yml"
+# https://raw.githubusercontent.com/rubocop/rubocop/master/config/default.yml
+
+AllCops:
+    DisplayCopNames: true
+    
+Layout/LineLength:
+    Max: 120
+
