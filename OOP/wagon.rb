@@ -1,28 +1,30 @@
-require_relative 'manufacturer.rb'
+# frozen_string_literal: false
 
+require_relative 'manufacturer'
+
+# Abstract Wagon
 class Wagon
   include Manufacturer
-  attr_reader :capacity_total
-  attr_reader :capacity_used
+  attr_reader :capacity_total, :capacity_used
 
   def initialize
-    validate!
+    # validate!
+    raise 'Ошибка данных, можно создать только PassengerWagon или CargoWagon'
   end
 
   def type_get
-    self.class.to_s.gsub("Wagon","").downcase.to_sym
+    self.class.to_s.gsub('Wagon', '').downcase.to_sym
   end
 
-
   def capacity_take(volume)
-    error_message = ""
+    error_message = ''
     error_message << ", нельзя занять больше доступного: #{capacity_free} " if @capacity_used + volume > @capacity_total
 
-    unless error_message.empty?
-      error_message = "Ошибка данных" + error_message
-      raise error_message
+    if error_message.empty?
+      @capacity_used += volume
     else
-      @capacity_used = @capacity_used + volume
+      error_message = "Ошибка данных #{error_message}"
+      raise error_message
     end
   end
 
@@ -30,13 +32,13 @@ class Wagon
     @capacity_total - @capacity_used
   end
 
-  protected
-
-  def validate!
-    unless self.instance_of?(PassengerWagon) || self.instance_of?(CargoWagon)
-      raise "Ошибка данных, можно создать только PassengerWagon или CargoWagon"
-    end
-
-    true
-  end
+  # protected
+  #
+  # def validate!
+  #   unless instance_of?(PassengerWagon) || instance_of?(CargoWagon)
+  #     raise 'Ошибка данных, можно создать только PassengerWagon или CargoWagon'
+  #   end
+  #
+  #   true
+  # end
 end

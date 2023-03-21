@@ -1,3 +1,6 @@
+# frozen_string_literal: false
+
+# noinspection RubyClassVariableUsageInspection
 module InstanceCounter
   def self.included(base)
     base.extend ClassMethods
@@ -5,7 +8,9 @@ module InstanceCounter
     base.send :prepend, Initializer # https://stackoverflow.com/a/17498039
   end
 
+  # rubocop:disable Style/ClassVars
   @@instances_counts ||= {}
+  # rubocop:enable Style/ClassVars
 
   module Initializer
     # @@instances_counts ||= {}
@@ -18,7 +23,7 @@ module InstanceCounter
 
   module ClassMethods
     def instances
-      self.class_variable_get(:@@instances_counts)[self.to_s.to_sym]
+      class_variable_get(:@@instances_counts)[to_s.to_sym]
     end
   end
 

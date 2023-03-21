@@ -23,6 +23,6 @@ success = system(%(
 STDIN.reopen('/dev/tty')
 
 if success == false
-  # puts "Would you like to continue press 'any key' or 'n/N' to halt? "
+  puts "Would you like to continue press 'any key' or 'n/N' to halt? "
   exit(1) if %w(N n).include?(gets.chomp)
 end

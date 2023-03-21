@@ -3,8 +3,41 @@
 # https://raw.githubusercontent.com/rubocop/rubocop/master/config/default.yml
 
 AllCops:
-    DisplayCopNames: true
-    
-Layout/LineLength:
-    Max: 120
+  DisplayCopNames: true
+  TargetRubyVersion: 3.1
+  NewCops: disable
+  # TODO: NewCops: enable
 
+Layout/LineLength:
+  Max: 120
+
+Layout/LineContinuationLeadingSpace:
+  Enabled: false
+
+Security/Eval:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Metrics/MethodLength:
+  Max: 41
+
+#Lint/RedundantStringCoercion:
+#  Enabled: false
+# ...256/mailanes/blob/master/.rubocop.yml
+#       /total/blob/master/.rubocop.yml
+#Layout/EmptyLineAfterGuardClause:
+#  Enabled: false
+#Layout/MultilineMethodCallIndentation:
+#  Enabled: false
+#Metrics/AbcSize:
+#  Max: 50
+#Metrics/CyclomaticComplexity:
+#  Max: 10
+#Metrics/PerceivedComplexity:
+#  Max: 10
+#Metrics/ParameterLists:
+#  Max: 10
+#Layout/AlignParameters:
+#  Enabled: false
