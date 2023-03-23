@@ -27,7 +27,6 @@ def execute_command_object_create(menu_selected, input_params_values)
     elsif menu_selected[:object_create_params_lookup]
       # object_create_params_lookup: { "@railway.stations" => "title", "@railway.stations" => "title" },
       params = menu_selected[:object_create_params_lookup]
-      input_params_values = input.partition(' ').last.squeeze(' ').delete(';').split(',').map(&:strip).reject(&:empty?)
 
       if params.count == input_params_values.count
         constructed_params = params.map(&:last).zip(input_params_values).map do |i|
@@ -48,7 +47,7 @@ def execute_command_object_create(menu_selected, input_params_values)
     eval(eval_command)
   rescue RuntimeError => e
     next_command = COMMAND_EXECUTE_ERROR
-    error_message = e.backtrace.first(3).join("\r\n")
+    error_message = e.message
   end
   command = next_command
 
@@ -155,7 +154,7 @@ def execute_command_show_list(menu_selected, input_params_values)
     end
   rescue RuntimeError => e
     next_command = COMMAND_EXECUTE_ERROR
-    error_message = e.backtrace.first(3).join("\r\n")
+    error_message = e.message
   end
 
   command = next_command
@@ -166,8 +165,6 @@ end
 def execute_command(menu_selected = nil, input = nil)
   puts
   puts "\033[100m \033[1m#{menu_selected[:caption]}\033[22m \033[0m"
-  command = ''
-  error_message = ''
 
   if menu_selected[:object_create]
     # Создать экземпляр класса с именем в :object_create, с параметрами из :object_create_params, в списке :target_list
@@ -175,7 +172,7 @@ def execute_command(menu_selected = nil, input = nil)
     command, error_message = execute_command_object_create(menu_selected, input_parse_params(input))
 
   elsif menu_selected[:call_one_of_list]
-    # Вызвать медот для одного объекта из списка, с параметром или без
+    # Вызвать метод для одного объекта из списка, с параметром или без
     command, error_message = execute_command_call_one_of_list(menu_selected, input_parse_params(input))
 
   elsif menu_selected[:show_list_source]
