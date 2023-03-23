@@ -24,7 +24,7 @@ MENU = [
   {
     command: 'С+',
     caption: 'Добавление Станции',
-    description: "Станцию создать, например: \033[1mС+ Москва\033[22m",
+    description: "Станцию создать, например: \033[1mС+ Переславль\033[22m",
     object_create: 'Station',
     object_create_params: { 'title' => ".squeeze(' ').strip" },
     target_list: '@railway.stations'
@@ -82,7 +82,7 @@ MENU = [
   {
     command: 'ПМВ',
     caption: 'Поезд по Маршруту вперёд',
-    description: "Поезд по Маршруту вперёд, например: \033[1mПМВ 03В-АВ\033[22m",
+    description: "Поезд по Маршруту вперёд, например: \033[1mПМВ 04Г-ЖГ\033[22m",
     call_one_of_list: '@railway.trains',
     call_one_of_list_filter: { 'number_get' => '[0]' },
     call_one_of_list_method: 'route_move_next_station'
@@ -90,7 +90,7 @@ MENU = [
   {
     command: 'ПМН',
     caption: 'Поезд по Маршруту назад',
-    description: "Поезд по Маршруту назад, например: \033[1mПМН 03В-АВ\033[22m",
+    description: "Поезд по Маршруту назад, например: \033[1mПМН 04Г-ЖГ\033[22m",
     call_one_of_list: '@railway.trains',
     call_one_of_list_filter: { 'number_get' => '[0]' },
     call_one_of_list_method: 'route_move_prev_station'
