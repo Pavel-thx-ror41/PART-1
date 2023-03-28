@@ -1,9 +1,9 @@
-# frozen_string_literal: false
+# frozen_string_literal: true
 
-CLS = "\e[H\e[2J".freeze
-COMMAND_INFO = 'Д'.freeze
-COMMAND_EXECUTE_ERROR = 'ОШИБКА_ВЫПОЛНЕНИЯ_КОМАНДЫ'.freeze
-COMMAND_EXIT = 'Х'.freeze
+CLS = "\e[H\e[2J"
+COMMAND_INFO = 'Д'
+COMMAND_EXECUTE_ERROR = 'ОШИБКА_ВЫПОЛНЕНИЯ_КОМАНДЫ'
+COMMAND_EXIT = 'Х'
 
 MENU = [
   {
@@ -36,12 +36,15 @@ MENU = [
                  "например: \033[1mСП Москва, Воронеж\033[22m или \033[1mСП\033[22m для всех)",
     show_list_source: '@railway.stations',
     show_list_source_each_call: 'title',
-    object_sublist_and_title_methods: { 'trains_get' => "sublist_item.number_get + ' '  + " \
-      "sublist_item.type_get.to_s.gsub('cargo', 'ГРУЗ').gsub('passenger', 'ПАС') + ' \"' +  " \
-      "sublist_item.route_get&.title + '\" ' + sublist_item.wagons_count.to_s + ' ваг.' + '\r\n      ' + " \
-      "sublist_item.wagons_get.each_with_index.map {|w,i| (i+1).to_s + ' ' + " \
-      "w.type_get.to_s.gsub('cargo', 'ГРУЗ').gsub('passenger', 'ПАС') + ' дост.:' + " \
-      "w.capacity_free.to_s + ' исп.:' + w.capacity_used.to_s }.join('\r\n      ') + '\r\n'" }
+    object_sublist_and_title_methods: {
+      'trains_get' =>
+        "sublist_item.number_get + ' '  + " \
+        "sublist_item.type_get.to_s.gsub('cargo', 'ГРУЗ').gsub('passenger', 'ПАС') + ' \"' +  " \
+        "sublist_item.route_get&.title + '\" ' + sublist_item.wagons_count.to_s + ' ваг.' + '\r\n      ' + " \
+        "sublist_item.wagons_get.each_with_index.map {|w,i| (i+1).to_s + ' ' + " \
+        "w.type_get.to_s.gsub('cargo', 'ГРУЗ').gsub('passenger', 'ПАС') + ' дост.:' + " \
+        "w.capacity_free.to_s + ' исп.:' + w.capacity_used.to_s }.join('\r\n      ') + '\r\n'"
+    }
   },
 
   {
@@ -49,7 +52,8 @@ MENU = [
     caption: 'Поезда',
     description: 'Поезда, посмотреть список',
     show_list_source: '@railway.trains',
-    show_list_source_each_call: "'\033[1m' + number_get.to_s + '\033[22m ' + " \
+    show_list_source_each_call:
+      "'\033[1m' + number_get.to_s + '\033[22m ' + " \
       "wagons_count.to_s + ' ваг.' + '\r\n      ' + wagons_get.each_with_index.map {|w,i| (i+1).to_s + ' ' + " \
       "w.type_get.to_s.gsub('cargo', 'ГРУЗ').gsub('passenger', 'ПАС') + ' дост.:' + " \
       "w.capacity_free.to_s + ' исп.:' + w.capacity_used.to_s }.join('\r\n      ') + '\r\n'"
@@ -82,7 +86,7 @@ MENU = [
   {
     command: 'ПМВ',
     caption: 'Поезд по Маршруту вперёд',
-    description: "Поезд по Маршруту вперёд, например: \033[1mПМВ 04Г-ЖГ\033[22m",
+    description: "Поезд по Маршруту вперёд, например: \033[1mПМВ 05Д-4Г\033[22m",
     call_one_of_list: '@railway.trains',
     call_one_of_list_filter: { 'number_get' => '[0]' },
     call_one_of_list_method: 'route_move_next_station'
@@ -90,7 +94,7 @@ MENU = [
   {
     command: 'ПМН',
     caption: 'Поезд по Маршруту назад',
-    description: "Поезд по Маршруту назад, например: \033[1mПМН 04Г-ЖГ\033[22m",
+    description: "Поезд по Маршруту назад, например: \033[1mПМН 05Д-4Г\033[22m",
     call_one_of_list: '@railway.trains',
     call_one_of_list_filter: { 'number_get' => '[0]' },
     call_one_of_list_method: 'route_move_prev_station'
@@ -98,7 +102,7 @@ MENU = [
   {
     command: 'ПВ+П',
     caption: 'Поезд Вагон добавить пассажирский',
-    description: "Поезд Вагон пассажирский добавить, например: \033[1mПВ+П 01А-0А\033[22m",
+    description: "Поезд Вагон пассажирский добавить, например: \033[1mПВ+П 007-АЖ\033[22m",
     call_one_of_list: '@railway.trains',
     call_one_of_list_filter: { 'number_get' => '[0]' },
     call_one_of_list_method: 'wagon_add(PassengerWagon.new)'
@@ -106,7 +110,7 @@ MENU = [
   {
     command: 'ПВ+Г',
     caption: 'Поезд Вагон добавить грузовой',
-    description: "Поезд Вагон грузовой добавить, например: \033[1mПВ+Г 02Б-0Б\033[22m",
+    description: "Поезд Вагон грузовой добавить, например: \033[1mПВ+Г 008-АИ\033[22m",
     call_one_of_list: '@railway.trains',
     call_one_of_list_filter: { 'number_get' => '[0]' },
     call_one_of_list_method: 'wagon_add(CargoWagon.new)'
@@ -114,7 +118,7 @@ MENU = [
   {
     command: 'ПВ-',
     caption: 'Поезд Вагон отцепить',
-    description: "Поезд Вагон отцепить, например: \033[1mПВ- 02Б-0Б\033[22m",
+    description: "Поезд Вагон отцепить, например: \033[1mПВ- 02Б-0Г\033[22m",
     call_one_of_list: '@railway.trains',
     call_one_of_list_filter: { 'number_get' => '[0]' },
     call_one_of_list_method: 'wagon_remove'
@@ -122,7 +126,7 @@ MENU = [
   {
     command: 'ПВ<',
     caption: 'Поезд Вагон занять места/объём',
-    description: "Поезда Вагон занять места/объём, например: \033[1mПВ< 02Б-0Б, 1, 12\033[22m",
+    description: "Поезда Вагон занять места/объём, например: \033[1mПВ< 02Б-0Г, 1, 12\033[22m",
     call_one_of_list: '@railway.trains',
     call_one_of_list_filter: { 'number_get' => '[0]' },
     call_one_of_list_method: 'wagons_get[input_params_values[1].to_i-1].capacity_take(input_params_values[2].to_f)'
@@ -177,4 +181,4 @@ MENU = [
 
 MENU_HELP = MENU.map do |mi|
   " \033[1m#{mi[:command]}\033[22m\t  #{mi[:description]}"
-end
+end.freeze

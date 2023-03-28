@@ -22,14 +22,22 @@ class Route
     "#{@stations.first.title} - #{@stations.last.title}"
   end
 
-  def station_insert(station, before)
-    if station.is_a?(Station) && before.is_a?(Station) && @stations.first != before && !@stations.index(station)
-      @stations.insert(@stations.index(before), station)
+  def station_insert(station, index)
+    if station.is_a?(Station) && index.is_a?(Station) && @stations.first != index && !@stations.index(station)
+      @stations.insert(@stations.index(index), station)
     else
       raise 'Ошибка данных. ' \
-            "Неправильный тип параметров: #{[station.class, before.class]}, требуется: Station, " \
+            "Неправильный тип параметров: #{[station.class, index.class]}, требуется: Station, " \
             'или попытка вставить перед первой станцией, можно только после и если уже не в списке'
     end
+
+    self
+  end
+
+  def stations_insert(stations, index)
+    stations.each { |station| station_insert(station, index) }
+
+    self
   end
 
   def station_remove(station)
@@ -47,6 +55,8 @@ class Route
       error_message = "Ошибка данных #{error_message}"
       raise error_message
     end
+
+    self
   end
 
   def stations_get

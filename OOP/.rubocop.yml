@@ -5,11 +5,18 @@
 AllCops:
   DisplayCopNames: true
   TargetRubyVersion: 3.1
-  NewCops: disable
-  # TODO: NewCops: enable
+  NewCops: enable
+
+Naming/BlockForwarding:
+  EnforcedStyle: explicit # default: anonymous
+  # https://docs.rubocop.org/rubocop/cops_naming.html#namingblockforwarding
 
 Layout/LineLength:
   Max: 120
+
+#Layout/LineEndStringConcatenationIndentation:
+#  EnforcedStyle: aligned # (default)
+#  https://docs.rubocop.org/rubocop/cops_layout.html#layoutlineendstringconcatenationindentation
 
 Layout/LineContinuationLeadingSpace:
   Enabled: false
@@ -21,7 +28,15 @@ Style/Documentation:
   Enabled: false
 
 Metrics/MethodLength:
-  Max: 41
+  Max: 39 # TODO: DEFAULT 10
+Metrics/AbcSize:
+  Max: 51 # TODO: 34, DEFAULT 17
+Metrics/CyclomaticComplexity:
+  Max: 14 # TODO: DEFAULT 7
+Metrics/PerceivedComplexity:
+  Max: 16 # TODO: DEFAULT 8
+Metrics/ClassLength:
+  Max: 210 # TODO: DEFAULT 100
 
 #Lint/RedundantStringCoercion:
 #  Enabled: false

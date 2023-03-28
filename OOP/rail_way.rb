@@ -22,33 +22,17 @@ class RailWay
   end
 
   def status
-    result_string = "\n" << " \033[1mСтанции\033[0m"
+    result_string = status_stations
+    result_string << status_routes
+    result_string << status_trains
+    result_string
+  end
 
-    # TODO: extract method
-    stations.each do |station|
-      station_trains = []
-      station.trains_get.map do |train|
-        station_trains << "#{train.number_get}" \
-                          " #{train.type_get.to_s.gsub('cargo', 'ГРУЗ').gsub('passenger', 'ПАС')}" \
-                          " #{train.route_get&.title}" \
-                          " вагонов:#{train.wagons_count}"
-      end
+  private
 
-      result_string << "\n" << "  #{station.title} поезда на станции: #{station_trains.join('; ')}"
-    end
-
-    result_string << '' # TODO: ??
-    result_string << "\n" << " \033[1mМаршруты\033[0m"
-
-    # TODO: extract method
-    routes.each do |route|
-      result_string << "\n" << "  #{route.title}   (#{route.stations_get.map(&:title).join(', ')})"
-    end
-
-    result_string << '' # TODO: ??
-    result_string << "\n" << " \033[1mПоезда\033[0m"
-    # TODO: extract method
-    trains.each do |train|
+  def status_trains
+    result_string = "\n" << " \033[1mПоезда\033[0m"
+    @trains.each do |train|
       train_wagons_caps = [0, 0]
       train_wagons = []
       train.wagons_map do |wagon|
@@ -68,161 +52,191 @@ class RailWay
                                " #{train.type_get.to_s.gsub('cargo', 'тонн').gsub('passenger', 'мест')}" \
                                "\r\n         (выгоны: #{train_wagons.join('; ')})"
     end
-
     result_string
   end
 
-  private
+  def status_routes
+    result_string = "\n" << " \033[1mМаршруты\033[0m"
+    @routes.each do |route|
+      result_string << "\n" << "  #{route.title}   (#{route.stations_get.map(&:title).join(', ')})"
+    end
+    result_string
+  end
 
-  # вызывается только из initialize
-  # rubocop:disable Metrics/MethodLength
-  # rubocop:disable Lint/SuppressedException
-  # rubocop:disable Style/RescueStandardError
+  def status_stations
+    result_string = "\n" << " \033[1mСтанции\033[0m"
+    @stations.each do |station|
+      station_trains = []
+      station.trains_get.map do |train|
+        station_trains << "#{train.number_get}" \
+                          " #{train.type_get.to_s.gsub('cargo', 'ГРУЗ').gsub('passenger', 'ПАС')}" \
+                          " #{train.route_get&.title}" \
+                          " вагонов:#{train.wagons_count}"
+      end
+      result_string << "\n" << "  #{station.title} поезда на станции: #{station_trains.join('; ')}"
+    end
+    result_string
+  end
+
   def seed
-    ['Москва', 'Воронеж', 'Ростов на Дону', 'Краснодар', 'Горячий ключ'].each do |station_caption|
-      stations << Station.new(station_caption)
-    end
     # @station_not_in_route = Station.new('Ильская')
+    @stations = create_stations('Москва', 'Воронеж', 'Ростов на Дону', 'Краснодар', 'Горячий ключ')
+    raise 'Ошибка проверки доработок Station (instance_counter)' if stations_count_wrong?(@stations)
 
-    station = nil
-    begin station = Station.new('М'); rescue; end
-    raise 'Ошибка проверки доработок Station. Название Станции должно быть от 2-х до 32 буквы, цифры, пробел' if station
-
-    raise 'Ошибка проверки доработок Station (instance_counter)' if
-      Station.instances != 5 ||
-      Station.all.count != 5 ||
-      stations.count != 5
-
-    begin
-      route = Route.new(stations.first, stations.last)
-      route.station_insert(stations[1], stations.last)
-      route.station_insert(stations[2], stations.last)
-      route.station_insert(stations[3], stations.last)
-      route.station_remove(stations[3])
-      route.station_remove(stations[2])
-      route.station_remove(stations[1])
-      route.station_insert(stations[1], stations.last)
-      route.station_insert(stations[2], stations.last)
-      route.station_insert(stations[3], stations.last)
-      routes << route
-
-      route = Route.new(stations[2], stations[4])
-      route.station_insert(stations[3], stations[4])
-      routes << route
-
-      route = Route.new(stations[1], stations[4])
-      route.station_insert(stations[3], stations[4])
-      routes << route
-    rescue RuntimeError => e
-      puts e
-      exit
+    station = create_wrong_station
+    if station
+      raise 'Ошибка проверки доработок Station. ' \
+            'Название Станции должно быть от 2-х до 32 буквы, цифры, пробел'
     end
 
-    raise 'Ошибка проверки доработок Route (instance_counter)' if
-      Route.instances != 3 ||
-      routes.count != 3
+    @routes = create_routes(@stations)
+    test_routes(@routes, @stations)
+    raise 'Ошибка проверки доработок Route (instance_counter)' if Route.instances != 3 || @routes.count != 3
 
-    wagon = nil
-    begin wagon = Wagon.new; rescue; end
+    wagon = test_wagon
     raise 'Ошибка проверки доработок Wagon. Можно создать только CargoWagon или PassengerWagon' if wagon
 
-    begin
-      train = PassengerTrain.new('01А-0А')
-      train.wagon_add(PassengerWagon.new)
-      train.wagon_add(PassengerWagon.new)
-      train.wagon_add(PassengerWagon.new)
-      train.wagon_add(PassengerWagon.new)
-      train.wagon_add(PassengerWagon.new)
-      trains << train
+    @trains = create_trains('01А-0П', '02Б-0Г', '03В-АГ', '04Г-ЖП', '05Д-4Г', '06Е-АП')
+    test_trains
+  end
 
-      train = CargoTrain.new('02Б-0Б')
-      train.wagon_add(CargoWagon.new)
-      train.wagon_add(CargoWagon.new)
-      train.wagon_add(CargoWagon.new)
-      train.wagon_add(CargoWagon.new)
-      train.wagon_add(CargoWagon.new)
-      trains << train
+  def train_type_by_sign(sign)
+    { 'П' => PassengerTrain, 'Г' => CargoTrain }.freeze[sign]
+  end
 
-      train = CargoTrain.new('03В-АВ')
-      train.wagon_add(CargoWagon.new)
-      train.wagon_add(CargoWagon.new)
-      train.wagon_add(CargoWagon.new)
-      train.wagon_add(CargoWagon.new)
-      train.wagon_add(CargoWagon.new)
-      trains << train
-      train.route_set(routes.first)
+  def wagon_type_by_sign(sign)
+    { 'П' => PassengerWagon, 'Г' => CargoWagon }.freeze[sign]
+  end
 
-      train = PassengerTrain.new('04Г-ЖГ')
-      train.wagon_add(PassengerWagon.new)
-      train.wagon_add(PassengerWagon.new)
-      trains << train
-      train.route_set(routes.last)
-
-      train = CargoTrain.new('05Д-4Д')
-      train.wagon_add(CargoWagon.new)
-      train.wagon_add(CargoWagon.new)
-      train.wagon_add(CargoWagon.new)
-      trains << train
-      train.route_set(routes.first)
-
-      train = PassengerTrain.new('06Е-АЕ')
-      trains << train
-      train.manufacturer = 'manufacturer_caption'
-      raise 'Ошибка проверки доработок Manufacturer' if train.manufacturer != 'manufacturer_caption'
-    rescue RuntimeError => e
-      puts e
-      exit
+  def create_trains(*new_trains_numbers)
+    new_trains = new_trains_numbers.map do |train_number|
+      train_type_by_sign(train_number.chars.last)
+        .new(train_number)
+        .wagons_add(wagon_type_by_sign(train_number.chars.last), 5)
     end
 
-    raise 'Ошибка проверки доработок Wagons (полезная нагрузка) начальные значения' if
-      trains[0].wagons_map(&:capacity_free).uniq.first != 36 ||
-      trains[0].wagons_map(&:capacity_used).uniq.first != 0 ||
-      (trains[1].wagons_map(&:capacity_free).uniq.first * 10).round.to_i != 500 ||
-      (trains[1].wagons_map(&:capacity_used).uniq.first * 10).round.to_i != 0 ||
-      trains[3].wagons_map(&:capacity_free).uniq.first != 36 ||
-      trains[3].wagons_map(&:capacity_used).uniq.first != 0 ||
-      (trains[2].wagons_map(&:capacity_free).uniq.first * 10).round.to_i != 500 ||
-      (trains[2].wagons_map(&:capacity_used).uniq.first * 10).round.to_i != 0
+    [2, 4].each { |i| new_trains[i].route_set(routes.first) }
+    new_trains[3].route_set(routes.last)
 
-    begin
-      trains[0].wagons_map { |w| w.capacity_take(10) }
-      trains[0].wagons_map(&:capacity_take_one)
-      trains[1].wagons_map { |w| w.capacity_take(10.0) }
-    rescue RuntimeError => e
-      puts 'Ошибка проверки доработок Wagons (полезная нагрузка) ожидаемое поведение'
-      puts e
-      exit
+    [[3, 3], [4, 2], [5, 5]].each do |remove_wagons|
+      remove_wagons[1].times { new_trains[remove_wagons[0]].wagon_remove }
     end
 
-    begin trains[3].wagons_map { |w| w.capacity_take(37) }; rescue; end
-    begin trains[2].wagons_map { |w| w.capacity_take(50.1) }; rescue; end
+    new_trains[0].wagons_map { |w| w.capacity_take(10) }
+    new_trains[0].wagons_map(&:capacity_take_one)
+    new_trains[1].wagons_map { |w| w.capacity_take(10.0) }
+
+    new_trains[0].manufacturer = 'manufacturer_caption'
+
+    new_trains
+  rescue StandardError => e
+    puts e
+    exit
+  end
+
+  def test_trains
+    raise 'Ошибка проверки доработок Manufacturer' if @trains[0].manufacturer != 'manufacturer_caption'
+
+    begin
+      [[3, 37], [2, 50.1]].each do |wrong_param|
+        @trains[wrong_param[0]].wagons_map { |wagon| wagon.capacity_take(wrong_param[1]) }
+      end
+    rescue StandardError
+      # do nothing
+    end
     raise 'Ошибка проверки доработок Wagons (полезная нагрузка) проверка capacity_take' if
-      trains[0].wagons_map(&:capacity_free).uniq.first != 25 ||
-      trains[0].wagons_map(&:capacity_used).uniq.first != 11 ||
-      (trains[1].wagons_map(&:capacity_free).uniq.first * 10).round.to_i != 400 ||
-      (trains[1].wagons_map(&:capacity_used).uniq.first * 10).round.to_i != 100 ||
-      trains[3].wagons_map(&:capacity_free).uniq.first != 36 ||
-      trains[3].wagons_map(&:capacity_used).uniq.first != 0 ||
-      (trains[2].wagons_map(&:capacity_free).uniq.first * 10).round.to_i != 500 ||
-      (trains[2].wagons_map(&:capacity_used).uniq.first * 10).round.to_i != 0
+      wrong_train_wagons_capacities
 
     train = nil
-    begin train = Train.new('987-ZA'); rescue; end
+    begin
+      train = Train.new('987-ZA')
+    rescue StandardError
+      # do nothing
+    end
     raise 'Поезд должен быть PassengerTrain или CargoTrain, не Train' if train
 
-    raise 'Ошибка проверки доработок Train' if
-      Train.find(trains[2]).number_get != trains[2].number_get ||
-      CargoTrain.instances != 3 ||
-      PassengerTrain.instances != 3 ||
-      trains.count != 6
+    train = nil
+    begin
+      train = Train.new('01А-0П')
+    rescue StandardError
+      # do nothing
+    end
+    raise 'Ошибка доработок, нельзя создать поезд с повторяющимся номером' if train
+
+    raise 'Ошибка проверки доработок Train' if wrong_trains_counts
 
     raise 'Ошибка проверки доработок Station.trains_map' if
-      stations.first.trains_map { |t| "№#{t.number_get}" }.join(' ') != '№03В-АВ №05Д-4Д'
+      @stations.first.trains_map { |t| "№#{t.number_get}" }.join(' ') != '№03В-АГ №05Д-4Г'
 
     raise 'Ошибка проверки доработок Train.wagons_map' if
-      stations.first.trains_get.first.wagons_map { |w| "Class#{w.class}" }.uniq.first != 'ClassCargoWagon'
+      @stations.first.trains_get.first.wagons_map { |w| "Class#{w.class}" }.uniq.first != 'ClassCargoWagon'
   end
-  # rubocop:enable Metrics/MethodLength
-  # rubocop:enable Lint/SuppressedException
-  # rubocop:enable Style/RescueStandardError
+
+  def wrong_train_wagons_capacities
+    [[0, 25, 11], [1, 40, 10], [2, 50, 0], [3, 36, 0]].map do |check_param|
+      @trains[check_param[0]].wagons_map(&:capacity_free).uniq.first != check_param[1] ||
+        @trains[check_param[0]].wagons_map(&:capacity_used).uniq.first != check_param[2]
+    end.any?
+  end
+
+  def wrong_trains_counts
+    Train.find(@trains[2]).number_get != @trains[2].number_get ||
+      CargoTrain.instances != 3 ||
+      PassengerTrain.instances != 3 ||
+      @trains.count != 6
+  end
+
+  def create_wrong_station
+    begin
+      station = Station.new('М')
+    rescue StandardError
+      # do nothing
+    end
+
+    begin
+      station = Station.new('М123456789' * 5)
+    rescue StandardError
+      # do nothing
+    end
+
+    station
+  end
+
+  def create_stations(*new_stations_titles)
+    new_stations_titles.map { |station_title| Station.new(station_title) }
+  end
+
+  def stations_count_wrong?(stations)
+    Station.instances != 5 || Station.all.count != 5 || stations.count != 5
+  end
+
+  def test_wagon
+    begin
+      wagon = Wagon.new
+    rescue StandardError
+      # do nothing
+    end
+
+    wagon
+  end
+
+  def create_routes(stations)
+    [ # [[from, to], [intermediate, insert_index]]
+      [[0, 4], [[1, 2, 3], 4]],
+      [[2, 4], [3, 4]],
+      [[1, 4], [3, 4]]
+    ].map do |new_route_stations|
+      Route
+        .new(stations[new_route_stations[0][0]], stations[new_route_stations[0][1]])
+        .stations_insert(stations.values_at(*new_route_stations[1][0]), stations[new_route_stations[1][1]])
+    end
+  end
+
+  def test_routes(routes, stations)
+    routes[0].station_remove(stations[2])
+    routes[0].station_insert(stations[2], stations[3])
+  rescue StandardError => e
+    puts e
+    exit
+  end
 end

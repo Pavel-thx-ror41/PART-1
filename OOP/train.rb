@@ -7,6 +7,8 @@ class Train
   include Manufacturer
   include InstanceCounter
 
+  TRAIN_NUMBER_FORMAT = /^(\d|[A-ZА-Я]|Ё){3}-?(\d|[A-ZА-Я]|Ё){2}$/i
+
   # rubocop:disable Style/ClassVars
   @@trains = []
   # rubocop:enable Style/ClassVars
@@ -28,7 +30,13 @@ class Train
 
   # используется в InstanceCounter в initialize
   def valid?
-    validate!
+    (instance_of?(CargoTrain) || instance_of?(PassengerTrain)) &&
+      (@number =~ TRAIN_NUMBER_FORMAT) &&
+      !Train.others_with_same_number?(self)
+  end
+
+  def self.others_with_same_number?(train)
+    @@trains.find_all { |t| (t.number_get == train.number_get) && !t.equal?(train) }.any?
   end
 
   def number_get
@@ -56,13 +64,22 @@ class Train
   end
 
   def wagon_remove
-    @wagons.pop if stopped?
+    raise 'Невозможно отцепить вагон на ходу' unless stopped?
+    raise 'Нет вагонов, нечего отцеплять' unless @wagons.pop
   end
 
   def wagon_add(wagon)
     raise 'Ошибка данных, тип Вагона не соответствует типу Поезда' unless stopped? && wagon_is_same_kind?(wagon)
 
     @wagons << wagon
+  end
+
+  def wagons_add(type, count)
+    count.times do
+      wagon_add(type.new)
+    end
+
+    self
   end
 
   def route_set(route)
@@ -73,6 +90,8 @@ class Train
     @route = route
     @current_station = @route.stations_get.first
     @current_station.train_arrive(self)
+
+    self
   end
 
   def route_get
@@ -80,8 +99,10 @@ class Train
   end
 
   def route_move_next_station
-    next_station = @route.station_get_next_from(@current_station)
-    raise 'Ошибка. Нет следующей станции.' unless next_station
+    raise 'Поезд в депо .' unless @current_station
+
+    next_station = @route&.station_get_next_from(@current_station)
+    raise 'Нет следующей станции.' unless next_station
 
     @current_station.train_depart(self)
     @current_station = next_station
@@ -111,15 +132,12 @@ class Train
 
   protected
 
-  TRAIN_NUMBER_FORMAT = /^(\d|[A-ZА-Я]|Ё){3}-?(\d|[A-ZА-Я]|Ё){2}$/i
   def validate!
-    raise 'Ошибка данных, можно создать только PassengerTrain или CargoTrain' if instance_of?(Train)
+    return if valid?
 
-    unless @number =~ TRAIN_NUMBER_FORMAT
-      raise 'Ошибка. Допустимый формат: три буквы или цифры, необязательный дефис, две буквы или цифры после дефиса.'
-    end
-
-    true
+    raise 'Можно создать только PassengerTrain или CargoTrain,' \
+          ' с не повторяющемся номером' \
+          ' в формате: три буквы или цифры, необязательный дефис, две буквы или цифры после дефиса '
   end
 
   # будет вызываться у наследников

@@ -20,9 +20,11 @@ loop do
 
   if command == ''
     puts
-    print 'введите команду: '
+    print 'введите команду: ' # "ПВ< 02Б-0Б, 1, 12"
     input = gets.chomp
-    command = input.partition(' ').first.to_s.strip.upcase
+    command = input.partition(' ').first.to_s.strip.upcase # "ПВ<"
+    input = input.partition(' ').last.to_s.squeeze(' ').delete(';').split(',').map(&:strip).reject(&:empty?)
+    # ["02Б-0Б", "1", "12"]
   end
   puts CLS
 
@@ -30,7 +32,7 @@ loop do
   puts MENU_HELP
   puts "\033[1m #{COMMAND_EXIT}\033[22m\t  Выход"
 
-  break if command == COMMAND_EXIT
+  break if command.eql?(COMMAND_EXIT)
 
   menu_selected = MENU.find { |mi| mi[:command] == command.to_s }
 
@@ -42,7 +44,7 @@ loop do
   end
 
   next_command, error_message = execute_command(menu_selected, input)
-  command = command == next_command ? '' : next_command
+  command = command.eql?(next_command) ? '' : next_command
 end
 
 puts
