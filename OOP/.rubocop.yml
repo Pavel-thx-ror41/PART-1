@@ -28,15 +28,15 @@ Style/Documentation:
   Enabled: false
 
 Metrics/MethodLength:
-  Max: 39 # TODO: DEFAULT 10
+  Max: 20 # DEFAULT 10
 Metrics/AbcSize:
-  Max: 51 # TODO: 34, DEFAULT 17
+  Max: 51 # x3 DEFAULT 17
 Metrics/CyclomaticComplexity:
-  Max: 14 # TODO: DEFAULT 7
+  Max: 14 # DEFAULT 7
 Metrics/PerceivedComplexity:
-  Max: 16 # TODO: DEFAULT 8
+  Max: 16 # DEFAULT 8
 Metrics/ClassLength:
-  Max: 210 # TODO: DEFAULT 100
+  Max: 200 # DEFAULT 100
 
 #Lint/RedundantStringCoercion:
 #  Enabled: false

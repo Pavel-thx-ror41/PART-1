@@ -43,7 +43,7 @@ loop do
     next
   end
 
-  next_command, error_message = execute_command(menu_selected, input)
+  next_command, error_message = execute_ui_command(menu_selected, input)
   command = command.eql?(next_command) ? '' : next_command
 end
 
