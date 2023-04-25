@@ -112,25 +112,26 @@ class RailWay
       .wagons_add(wagon_type_by_sign(train_number.chars.last), 5)
   end
 
-  def correct_seed_train(new_train, train_idx)
+  def correct_seed_train(train, train_idx)
     case train_idx
     when 0
-      new_train.wagons_map { |w| w.capacity_take(10) }
-      new_train.wagons_map(&:capacity_take_one)
-      new_train.manufacturer = 'manufacturer_caption'
+      train.wagons_map { |w| w.capacity_take(10) }
+      train.wagons_map(&:capacity_take_one)
+      train.manufacturer = 'manufacturer_caption'
     when 1
-      new_train.wagons_map { |w| w.capacity_take(10.0) }
+      train.wagons_map { |w| w.capacity_take(10.0) }
     when 2
-      new_train.route_set(routes.first)
+      train.route_set(routes.first)
     when 3
-      new_train.route_set(routes.last)
-      3.times { new_train.wagon_remove }
+      train.route_set(routes.last)
+      3.times { train.wagon_remove }
     when 4
-      new_train.route_set(routes.first)
-      2.times { new_train.wagon_remove }
+      train.route_set(routes.first)
+      2.times { train.wagon_remove }
     when 5
-      5.times { new_train.wagon_remove }
+      5.times { train.wagon_remove }
     end
+    train
   end
 
   def seed_trains
@@ -145,34 +146,15 @@ class RailWay
   def test_trains
     raise 'Ошибка проверки доработок Manufacturer' if @trains[0].manufacturer != 'manufacturer_caption'
 
-    # TODO: EXTRACT METHOD
-    begin
-      [[3, 37], [2, 50.1]].each do |wrong_param|
-        @trains[wrong_param[0]].wagons_map { |wagon| wagon.capacity_take(wrong_param[1]) }
-      end
-    rescue StandardError
-      # do nothing
-    end
+    try_take_wrong_wagons_capacities
     raise 'Ошибка проверки доработок Wagons (полезная нагрузка) проверка capacity_take' if
       wrong_train_wagons_capacities?
 
-    # TODO: EXTRACT METHOD
-    train = nil
-    begin
-      train = Train.new('987-ZA')
-    rescue StandardError
-      # do nothing
-    end
-    raise 'Поезд должен быть PassengerTrain или CargoTrain, не Train' if train
+    # train = try_create_train_with_wrong_number
+    raise 'Поезд должен быть PassengerTrain или CargoTrain, не Train' if try_create_train_with_wrong_number
 
-    # TODO: EXTRACT METHOD
-    train = nil
-    begin
-      train = Train.new('01А-0П')
-    rescue StandardError
-      # do nothing
-    end
-    raise 'Ошибка доработок, нельзя создать поезд с повторяющимся номером' if train
+    # train = try_create_train_with_existed_number
+    raise 'Ошибка доработок, нельзя создать поезд с повторяющимся номером' if try_create_train_with_existed_number
 
     raise 'Ошибка проверки доработок Train' if wrong_trains_counts?
 
@@ -181,6 +163,34 @@ class RailWay
 
     raise 'Ошибка проверки доработок Train.wagons_map' if
       @stations.first.trains_get.first.wagons_map { |w| "Class#{w.class}" }.uniq.first != 'ClassCargoWagon'
+  end
+
+  def try_create_train_with_existed_number
+    train = nil
+    begin
+      train = Train.new('01А-0П')
+    rescue StandardError
+      # do nothing
+    end
+    train
+  end
+
+  def try_create_train_with_wrong_number
+    train = nil
+    begin
+      train = Train.new('987-ZA')
+    rescue StandardError
+      # do nothing
+    end
+    train
+  end
+
+  def try_take_wrong_wagons_capacities
+    [[3, 37], [2, 50.1]].each do |wrong_param|
+      @trains[wrong_param[0]].wagons_map { |wagon| wagon.capacity_take(wrong_param[1]) }
+    end
+  rescue StandardError
+    # do nothing
   end
 
   def wrong_train_wagons_capacities?
