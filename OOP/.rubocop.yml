@@ -30,7 +30,7 @@ Style/Documentation:
 Metrics/MethodLength:
   Max: 20 # DEFAULT 10
 Metrics/AbcSize:
-  Max: 51 # x3 DEFAULT 17
+  Max: 34 # DEFAULT 17
 Metrics/CyclomaticComplexity:
   Max: 14 # DEFAULT 7
 Metrics/PerceivedComplexity:
