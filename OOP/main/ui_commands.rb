@@ -5,49 +5,44 @@ def exec_object_create(menu_selected, input_params_values)
   next_command = COMMAND_INFO
   eval_command = menu_selected[:target_list] ? "#{menu_selected[:target_list]} << " : ''
   eval_command += "#{menu_selected[:object_create]}.new"
-  error_message = nil
 
-  begin
-    if menu_selected[:object_create_params]
-      # object_create_params: { "title" => "to_s" },
-      params = menu_selected[:object_create_params]
-      if params.count == input_params_values.count
-        params_modificators = params.values.map(&:to_s) # например "to_i", "to_f", ...
-        constructed_params = params_modificators.zip(input_params_values).map { |i| "\"#{i[1]}\"#{i[0]}" }.join(', ')
-        eval_command += "(#{constructed_params})"
-      else
-        puts "Не верное количество параметров, необходимо #{params.count}" \
-             " а именно: #{params.keys.map(&:to_s).join(', ')}"
-        eval_command = ''
-        next_command = ''
-      end
-    elsif menu_selected[:object_create_params_lookup]
-      # object_create_params_lookup: { "@railway.stations" => "title", "@railway.stations" => "title" },
-      params = menu_selected[:object_create_params_lookup]
-
-      if params.count == input_params_values.count
-        constructed_params = params.map(&:last).zip(input_params_values).map do |i|
-          "#{i[0].keys.first}.select {|obj| obj.#{i[0].values.first} == \"#{i[1]}\" }.first"
-        end.join(', ')
-        eval_command += "(#{constructed_params})"
-      else
-        puts "Не верное количество параметров, необходимо #{params.count}" \
-             " а именно: #{params.keys.map(&:to_s).join(', ')}"
-        eval_command = ''
-        next_command = ''
-      end
-    else
-      raise 'Ошибка формата в MENU.' \
-            ' В меню типа object_create должны присутствовать object_create_params или object_create_params_lookup'
+  if menu_selected[:object_create_params]
+    # object_create_params: { "title" => "to_s" },
+    params = menu_selected[:object_create_params]
+    if params.count == input_params_values.count
+      params_modificators = params.values.map(&:to_s) # например "to_i", "to_f", ...
+      constructed_params = params_modificators.zip(input_params_values).map { |i| "\"#{i[1]}\"#{i[0]}" }.join(', ')
+      eval_command += "(#{constructed_params})"
+    else # TODO: exctract method
+      puts "Не верное количество параметров, необходимо #{params.count}" \
+           " а именно: #{params.keys.map(&:to_s).join(', ')}"
+      eval_command = ''
+      next_command = ''
     end
+  elsif menu_selected[:object_create_params_lookup]
+    # object_create_params_lookup: { "@railway.stations" => "title", "@railway.stations" => "title" },
+    params = menu_selected[:object_create_params_lookup]
 
-    eval(eval_command)
-  rescue StandardError => e
-    next_command = COMMAND_EXECUTE_ERROR
-    error_message = e.message
+    if params.count == input_params_values.count
+      constructed_params = params.map(&:last).zip(input_params_values).map do |i|
+        "#{i[0].keys.first}.select {|obj| obj.#{i[0].values.first} == \"#{i[1]}\" }.first"
+      end.join(', ')
+      eval_command += "(#{constructed_params})"
+    else
+      puts "Не верное количество параметров, необходимо #{params.count}" \
+           " а именно: #{params.keys.map(&:to_s).join(', ')}"
+      eval_command = ''
+      next_command = ''
+    end
+  else
+    raise 'Ошибка формата в MENU.' \
+          ' В меню типа object_create должны присутствовать object_create_params или object_create_params_lookup'
   end
 
-  [next_command, error_message]
+  eval(eval_command)
+  next_command
+rescue StandardError => e
+  [COMMAND_EXECUTE_ERROR, e.message]
 end
 
 def exec_call_one_of_list_menu_params(menu_selected)
@@ -66,6 +61,7 @@ def exec_call_one_of_list_menu_params(menu_selected)
   ]
 end
 
+# Получаем объект, методы которого будем вызывать
 def exec_call_one_of_list_get_object(object_from_list, input_params_values)
   objects_list_eval_source, object_list_filter_method, object_list_filter_input_value = object_from_list
   # menu_selected[:call_one_of_list].to_s,
