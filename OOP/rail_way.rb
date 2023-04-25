@@ -94,7 +94,7 @@ class RailWay
 
     test_wagon
 
-    @trains = create_trains('01А-0П', '02Б-0Г', '03В-АГ', '04Г-ЖП', '05Д-4Г', '06Е-АП')
+    @trains = seed_trains
     test_trains
   end
 
@@ -106,27 +106,37 @@ class RailWay
     { 'П' => PassengerWagon, 'Г' => CargoWagon }.freeze[sign]
   end
 
-  def create_trains(*new_trains_numbers)
-    new_trains = new_trains_numbers.map do |train_number|
-      train_type_by_sign(train_number.chars.last)
-        .new(train_number)
-        .wagons_add(wagon_type_by_sign(train_number.chars.last), 5)
+  def build_train(train_number)
+    train_type_by_sign(train_number.chars.last)
+      .new(train_number)
+      .wagons_add(wagon_type_by_sign(train_number.chars.last), 5)
+  end
+
+  def correct_seed_train(new_train, train_idx)
+    case train_idx
+    when 0
+      new_train.wagons_map { |w| w.capacity_take(10) }
+      new_train.wagons_map(&:capacity_take_one)
+      new_train.manufacturer = 'manufacturer_caption'
+    when 1
+      new_train.wagons_map { |w| w.capacity_take(10.0) }
+    when 2
+      new_train.route_set(routes.first)
+    when 3
+      new_train.route_set(routes.last)
+      3.times { new_train.wagon_remove }
+    when 4
+      new_train.route_set(routes.first)
+      2.times { new_train.wagon_remove }
+    when 5
+      5.times { new_train.wagon_remove }
     end
+  end
 
-    [2, 4].each { |i| new_trains[i].route_set(routes.first) }
-    new_trains[3].route_set(routes.last)
-
-    [[3, 3], [4, 2], [5, 5]].each do |remove_wagons|
-      remove_wagons[1].times { new_trains[remove_wagons[0]].wagon_remove }
+  def seed_trains
+    %w[01А-0П 02Б-0Г 03В-АГ 04Г-ЖП 05Д-4Г 06Е-АП].map.with_index do |train_number, train_idx|
+      correct_seed_train(build_train(train_number), train_idx)
     end
-
-    new_trains[0].wagons_map { |w| w.capacity_take(10) }
-    new_trains[0].wagons_map(&:capacity_take_one)
-    new_trains[1].wagons_map { |w| w.capacity_take(10.0) }
-
-    new_trains[0].manufacturer = 'manufacturer_caption'
-
-    new_trains
   rescue StandardError => e
     puts e
     exit
@@ -135,6 +145,7 @@ class RailWay
   def test_trains
     raise 'Ошибка проверки доработок Manufacturer' if @trains[0].manufacturer != 'manufacturer_caption'
 
+    # TODO: EXTRACT METHOD
     begin
       [[3, 37], [2, 50.1]].each do |wrong_param|
         @trains[wrong_param[0]].wagons_map { |wagon| wagon.capacity_take(wrong_param[1]) }
@@ -145,6 +156,7 @@ class RailWay
     raise 'Ошибка проверки доработок Wagons (полезная нагрузка) проверка capacity_take' if
       wrong_train_wagons_capacities?
 
+    # TODO: EXTRACT METHOD
     train = nil
     begin
       train = Train.new('987-ZA')
@@ -153,6 +165,7 @@ class RailWay
     end
     raise 'Поезд должен быть PassengerTrain или CargoTrain, не Train' if train
 
+    # TODO: EXTRACT METHOD
     train = nil
     begin
       train = Train.new('01А-0П')
