@@ -141,25 +141,39 @@ rescue StandardError => e
   [COMMAND_EXECUTE_ERROR, e.message || 'Неизвестная ошибка']
 end
 
-def exec_show_list(menu_selected, input_params_values)
-  eval_command = menu_selected[:show_list_source].to_s
-  source_list_each_call = menu_selected[:show_list_source_each_call] if menu_selected[:show_list_source_each_call]
-  if source_list_each_call && input_params_values.count.positive?
+def exec_show_list_menu_params(menu_selected)
+  [
+    menu_selected[:show_list_source].to_s,
+    menu_selected[:show_list_source_each_call],
+    menu_selected[:object_sublist_and_title_methods]
+  ]
+end
+
+# show_list_source: '@railway.routes',
+# show_list_source_each_call: 'title',
+# object_sublist_and_title_methods: { 'stations_get' => 'sublist_item.title' }
+def exec_show_list(show_list_source, show_list_source_each_call, object_sublist_and_title_methods, input_params_values)
+  # исходный список
+  eval_command = show_list_source
+  if show_list_source_each_call && input_params_values.count.positive?
+    # дополнительная фильтрация
     puts " только для: #{input_params_values.join(', ')}"
     eval_command += ".select {|source_list_item| #{input_params_values}." \
-                    "include?(source_list_item.#{source_list_each_call})}"
+                    "include?(source_list_item.#{show_list_source_each_call})}"
   end
   source_list_result = eval(eval_command)
 
   puts
+  # элементы списка
   source_list_result.each do |source_list_item|
-    puts "  \033[1m#{source_list_item.instance_eval(source_list_each_call)}\033[22m"
+    puts "  \033[1m#{source_list_item.instance_eval(show_list_source_each_call)}\033[22m"
 
     # object_sublist_and_title_methods: { "route_get" => "sublist_item.title"}
-    next unless menu_selected[:object_sublist_and_title_methods]
+    next unless object_sublist_and_title_methods
 
-    eval_command = "source_list_item.#{menu_selected[:object_sublist_and_title_methods].keys.first}.map" \
-                   " {|sublist_item| #{menu_selected[:object_sublist_and_title_methods].values.first} }"
+    # вложенный список
+    eval_command = "source_list_item.#{object_sublist_and_title_methods.keys.first}.map" \
+                   " {|sublist_item| #{object_sublist_and_title_methods.values.first} }"
     sub_list = eval(eval_command)
     puts "   #{sub_list.join("\r\n   ")}" if sub_list.count.positive?
     puts
@@ -176,6 +190,18 @@ def execute_ui_command(menu_selected, input)
     # Создать экземпляр класса с именем в :object_create, с параметрами из :object_create_params, в списке :target_list
     # object_create: "Station",  ..., target_list: "@railway.stations"
     ### exec_object_create(menu_selected, input_parse_params(input))
+    # object_create: 'Station',
+    # object_create: 'PassengerTrain',
+    # object_create: 'Route',
+    #
+    # object_create_params: { 'title' => ".squeeze(' ').strip" },
+    # object_create_params: { 'number' => ".squeeze(' ').strip" },
+    # object_create_params_lookup: { 'from' => { '@railway.stations' => 'title' },
+    #                                'to' => { '@railway.stations' => 'title' } },
+    #
+    # target_list: '@railway.stations'
+    # target_list: '@railway.trains'
+    # target_list: '@railway.routes'
     exec_object_create(menu_selected, input)
 
   elsif menu_selected[:call_one_of_list]
@@ -184,10 +210,7 @@ def execute_ui_command(menu_selected, input)
 
   elsif menu_selected[:show_list_source]
     # Отобразить список, со списком вложенных объектов
-    # show_list_source: "@railway.stations", show_list_source_each_call: "title",
-    #   object_sublist_and_title_methods: { "trains_get" => "sublist_item.number_get"}
-    # show_list_source: "@railway.trains", show_list_source_each_call: "number_get"
-    exec_show_list(menu_selected, input)
+    exec_show_list(*exec_show_list_menu_params(menu_selected), input)
 
   else
     [COMMAND_EXECUTE_ERROR, 'Не реализовано']
