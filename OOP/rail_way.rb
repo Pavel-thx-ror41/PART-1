@@ -8,6 +8,7 @@ require_relative 'cargo_train'
 require_relative 'cargo_wagon'
 require_relative 'passenger_train'
 require_relative 'passenger_wagon'
+require_relative 'rail_way_test'
 
 class RailWay
   attr_reader :stations, :routes, :trains
@@ -18,7 +19,11 @@ class RailWay
     @stations = []
     @routes = []
     @trains = []
-    seed if do_seed
+
+    return unless do_seed
+
+    seed
+    RailWay::Test.call(@stations, @routes, @trains)
   end
 
   def status
@@ -87,15 +92,8 @@ class RailWay
   def seed
     # @station_not_in_route = Station.new('Ильская')
     @stations = create_stations('Москва', 'Воронеж', 'Ростов на Дону', 'Краснодар', 'Горячий ключ')
-    test_stations
-
     @routes = create_routes
-    test_routes
-
-    test_wagon
-
     @trains = seed_trains
-    test_trains
   end
 
   def train_type_by_sign(sign)
@@ -143,109 +141,8 @@ class RailWay
     exit
   end
 
-  def test_trains
-    raise 'Ошибка проверки доработок Manufacturer' if @trains[0].manufacturer != 'manufacturer_caption'
-
-    try_take_wrong_wagons_capacities
-    raise 'Ошибка проверки доработок Wagons (полезная нагрузка) проверка capacity_take' if
-      wrong_train_wagons_capacities?
-
-    # train = try_create_train_with_wrong_number
-    raise 'Поезд должен быть PassengerTrain или CargoTrain, не Train' if try_create_train_with_wrong_number
-
-    # train = try_create_train_with_existed_number
-    raise 'Ошибка доработок, нельзя создать поезд с повторяющимся номером' if try_create_train_with_existed_number
-
-    raise 'Ошибка проверки доработок Train' if wrong_trains_counts?
-
-    raise 'Ошибка проверки доработок Station.trains_map' if
-      @stations.first.trains_map { |t| "№#{t.number_get}" }.join(' ') != '№03В-АГ №05Д-4Г'
-
-    raise 'Ошибка проверки доработок Train.wagons_map' if
-      @stations.first.trains_get.first.wagons_map { |w| "Class#{w.class}" }.uniq.first != 'ClassCargoWagon'
-  end
-
-  def try_create_train_with_existed_number
-    train = nil
-    begin
-      train = Train.new('01А-0П')
-    rescue StandardError
-      # do nothing
-    end
-    train
-  end
-
-  def try_create_train_with_wrong_number
-    train = nil
-    begin
-      train = Train.new('987-ZA')
-    rescue StandardError
-      # do nothing
-    end
-    train
-  end
-
-  def try_take_wrong_wagons_capacities
-    [[3, 37], [2, 50.1]].each do |wrong_param|
-      @trains[wrong_param[0]].wagons_map { |wagon| wagon.capacity_take(wrong_param[1]) }
-    end
-  rescue StandardError
-    # do nothing
-  end
-
-  def wrong_train_wagons_capacities?
-    [[0, 25, 11], [1, 40, 10], [2, 50, 0], [3, 36, 0]].map do |check_param|
-      @trains[check_param[0]].wagons_map(&:capacity_free).uniq.first != check_param[1] ||
-        @trains[check_param[0]].wagons_map(&:capacity_used).uniq.first != check_param[2]
-    end.any?
-  end
-
-  def wrong_trains_counts?
-    Train.find(@trains[2]).number_get != @trains[2].number_get ||
-      CargoTrain.instances != 3 ||
-      PassengerTrain.instances != 3 ||
-      @trains.count != 6
-  end
-
-  def create_wrong_station
-    begin
-      station = Station.new('М')
-    rescue StandardError
-      # do nothing
-    end
-
-    begin
-      station = Station.new('М123456789' * 5)
-    rescue StandardError
-      # do nothing
-    end
-
-    station
-  end
-
   def create_stations(*new_stations_titles)
     new_stations_titles.map { |station_title| Station.new(station_title) }
-  end
-
-  def test_stations
-    raise 'Ошибка проверки доработок Station (instance_counter)' if stations_count_wrong?(@stations)
-
-    return unless create_wrong_station
-
-    raise 'Ошибка проверки доработок Station. Название Станции должно быть от 2-х до 32 буквы, цифры, пробел'
-  end
-
-  def stations_count_wrong?(stations)
-    Station.instances != 5 || Station.all.count != 5 || stations.count != 5
-  end
-
-  def test_wagon
-    begin
-      wagon = Wagon.new
-    rescue StandardError
-      # do nothing
-    end
-    raise 'Ошибка проверки доработок Wagon. Можно создать только CargoWagon или PassengerWagon' if wagon
   end
 
   def create_routes
@@ -258,14 +155,5 @@ class RailWay
         .new(@stations[new_route_stations[0][0]], @stations[new_route_stations[0][1]])
         .stations_insert(@stations.values_at(*new_route_stations[1][0]), @stations[new_route_stations[1][1]])
     end
-  end
-
-  def test_routes
-    @routes[0].station_remove(@stations[2])
-    @routes[0].station_insert(@stations[2], @stations[3])
-    raise 'Ошибка проверки доработок Route (instance_counter)' if Route.instances != 3 || @routes.count != 3
-  rescue StandardError => e
-    puts e
-    exit
   end
 end
