@@ -15,7 +15,9 @@ class Route
 
   # используется в InstanceCounter в initialize
   def valid?
-    validate!
+    @stations.first.is_a?(Station) &&
+      @stations.last.is_a?(Station) &&
+      !@stations.first.equal?(@stations.last)
   end
 
   def title
@@ -76,13 +78,8 @@ class Route
   protected
 
   def validate!
-    unless @stations.first.is_a?(Station) && @stations.last.is_a?(Station)
-      raise "Ошибка данных, неправильный тип(ы) параметра(ов) #{[@stations.first.class, @stations.last.class]}, " \
-            'возможно только: Station'
-    end
+    return if valid?
 
-    raise 'Ошибка данных, начальная и конечная станции должны быть разными' if @stations.first.equal?(@stations.last)
-
-    true
+    raise 'Ошибка данных, параметры начальная и конечная станции должны быть разными и быть класса Station'
   end
 end

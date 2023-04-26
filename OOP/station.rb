@@ -24,7 +24,7 @@ class Station
 
   # используется в InstanceCounter в initialize
   def valid?
-    validate!
+    @title =~ /^(\d|[A-ZА-Я]|Ё| ){2,32}$/i
   end
 
   attr_reader :title
@@ -68,10 +68,9 @@ class Station
 
   private
 
-  STATION_TITLE_FORMAT = /^(\d|[A-ZА-Я]|Ё| ){2,32}$/i
   def validate!
-    raise 'Ошибка. Допустимый формат: от 2-х до 32 буквы, цифры, пробел' unless @title =~ STATION_TITLE_FORMAT
+    return if valid?
 
-    true
+    raise 'Ошибка. Допустимый формат: от 2-х до 32 буквы, цифры, пробел'
   end
 end
