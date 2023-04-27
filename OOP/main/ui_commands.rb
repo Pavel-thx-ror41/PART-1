@@ -1,46 +1,63 @@
 # frozen_string_literal: false
 
+def exec_object_create_menu_params(menu_selected)
+  [
+    menu_selected[:target_list],
+    menu_selected[:object_create],
+    menu_selected[:object_create_params],
+    menu_selected[:object_create_params_lookup]
+  ]
+end
+
+def wrong_parameters_count_alert(object_create_params)
+  puts "Не верное количество параметров, необходимо #{object_create_params.count}" \
+       " а именно: #{object_create_params.keys.map(&:to_s).join(', ')}"
+  '' # next_command
+end
+
+def object_create_params_make_eval_string(input_params_values, object_create_params)
+  params_modificators = object_create_params.values.map(&:to_s) # например "to_i", "to_f", ...
+  constructed_params = params_modificators.zip(input_params_values).map { |i| "\"#{i[1]}\"#{i[0]}" }.join(', ')
+  "(#{constructed_params})"
+end
+
+def object_create_params_lookup_make_eval_string(input_params_values, object_create_params_lookup)
+  constructed_params = object_create_params_lookup.map(&:last).zip(input_params_values).map do |i|
+    "#{i[0].keys.first}.select {|obj| obj.#{i[0].values.first} == \"#{i[1]}\" }.first"
+  end.join(', ')
+  "(#{constructed_params})"
+end
+
 # execute UI command -> object_create
-def exec_object_create(menu_selected, input_params_values)
-  next_command = COMMAND_INFO
-  eval_command = menu_selected[:target_list] ? "#{menu_selected[:target_list]} << " : ''
-  eval_command += "#{menu_selected[:object_create]}.new"
+def exec_object_create(target_list, object_create, object_create_params, object_create_params_lookup,
+                       input_params_values)
+  # object_create: 'Station',
+  # target_list: '@railway.stations'
+  eval_command = target_list ? "#{target_list} << #{object_create}.new" : "#{object_create}.new"
 
-  if menu_selected[:object_create_params]
+  if object_create_params
+    # object_create_params: { 'title' => ".squeeze(' ').strip" },
     # object_create_params: { "title" => "to_s" },
-    params = menu_selected[:object_create_params]
-    if params.count == input_params_values.count
-      params_modificators = params.values.map(&:to_s) # например "to_i", "to_f", ...
-      constructed_params = params_modificators.zip(input_params_values).map { |i| "\"#{i[1]}\"#{i[0]}" }.join(', ')
-      eval_command += "(#{constructed_params})"
-    else # TODO: exctract method
-      puts "Не верное количество параметров, необходимо #{params.count}" \
-           " а именно: #{params.keys.map(&:to_s).join(', ')}"
-      eval_command = ''
-      next_command = ''
-    end
-  elsif menu_selected[:object_create_params_lookup]
-    # object_create_params_lookup: { "@railway.stations" => "title", "@railway.stations" => "title" },
-    params = menu_selected[:object_create_params_lookup]
 
-    if params.count == input_params_values.count
-      constructed_params = params.map(&:last).zip(input_params_values).map do |i|
-        "#{i[0].keys.first}.select {|obj| obj.#{i[0].values.first} == \"#{i[1]}\" }.first"
-      end.join(', ')
-      eval_command += "(#{constructed_params})"
-    else
-      puts "Не верное количество параметров, необходимо #{params.count}" \
-           " а именно: #{params.keys.map(&:to_s).join(', ')}"
-      eval_command = ''
-      next_command = ''
-    end
+    return wrong_parameters_count_alert(object_create_params) unless # return next_command = ''
+      object_create_params.count.eql?(input_params_values.count)
+
+    eval_command += object_create_params_make_eval_string(input_params_values, object_create_params)
+  elsif object_create_params_lookup
+    # object_create_params_lookup: { "@railway.stations" => "title", "@railway.stations" => "title" },
+    # object_create_params_lookup: { 'from' => { '@railway.stations' => 'title' },
+    #                                'to' => { '@railway.stations' => 'title' } },
+    return wrong_parameters_count_alert(object_create_params_lookup) unless # return next_command = ''
+      object_create_params_lookup.count.eql?(input_params_values.count)
+
+    eval_command += object_create_params_lookup_make_eval_string(input_params_values, object_create_params_lookup)
   else
-    raise 'Ошибка формата в MENU.' \
+    raise 'Ошибка описания меню (ui_menu.rb).' \
           ' В меню типа object_create должны присутствовать object_create_params или object_create_params_lookup'
   end
 
   eval(eval_command)
-  next_command
+  COMMAND_INFO # next_command
 rescue StandardError => e
   [COMMAND_EXECUTE_ERROR, e.message]
 end
@@ -188,21 +205,7 @@ def execute_ui_command(menu_selected, input)
   puts "\033[100m \033[1m#{menu_selected[:caption]}\033[22m \033[0m"
   if menu_selected[:object_create]
     # Создать экземпляр класса с именем в :object_create, с параметрами из :object_create_params, в списке :target_list
-    # object_create: "Station",  ..., target_list: "@railway.stations"
-    ### exec_object_create(menu_selected, input_parse_params(input))
-    # object_create: 'Station',
-    # object_create: 'PassengerTrain',
-    # object_create: 'Route',
-    #
-    # object_create_params: { 'title' => ".squeeze(' ').strip" },
-    # object_create_params: { 'number' => ".squeeze(' ').strip" },
-    # object_create_params_lookup: { 'from' => { '@railway.stations' => 'title' },
-    #                                'to' => { '@railway.stations' => 'title' } },
-    #
-    # target_list: '@railway.stations'
-    # target_list: '@railway.trains'
-    # target_list: '@railway.routes'
-    exec_object_create(menu_selected, input)
+    exec_object_create(*exec_object_create_menu_params(menu_selected), input)
 
   elsif menu_selected[:call_one_of_list]
     # Вызвать метод для одного объекта из списка, с параметром или без
