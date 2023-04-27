@@ -30,13 +30,13 @@ Style/Documentation:
 Metrics/MethodLength:
   Max: 20 # DEFAULT 10
 Metrics/AbcSize:
-  Max: 34 # DEFAULT 17
+  Max: 27 # DEFAULT 17
 Metrics/CyclomaticComplexity:
-  Max: 14 # DEFAULT 7
+  Max: 9 # DEFAULT 7
 Metrics/PerceivedComplexity:
-  Max: 16 # DEFAULT 8
+  Max: 9 # DEFAULT 8
 Metrics/ClassLength:
-  Max: 200 # DEFAULT 100
+  Max: 125 # DEFAULT 100
 
 #Lint/RedundantStringCoercion:
 #  Enabled: false
