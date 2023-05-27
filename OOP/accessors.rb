@@ -3,8 +3,6 @@
 module Accessors
   def self.included(base)
     base.extend Extend
-    # base.send :prepend, Prep # https://stackoverflow.com/a/17498039
-    # base.send :include, Incl
   end
 
   module Extend
@@ -28,46 +26,5 @@ module Accessors
         end
       end
     end
-
-    # 1 binding.pry # A ClassMeth
-    # class Module
-    #   def _____Extend_Module_Method_____
-    #     puts '_____Extend_Module_Method_____'
-    #   end
-    #
-    #   def self._____Extend_Module_Self_Method_____
-    #     puts 'Module   self._____Extend_Module_Self_Method_____ ++++++++++'
-    #   end
-    # end
-    # 2 binding.pry # A ClassMeth Module+
-
-    # def self._____Extend_Self_Method_____
-    #   puts 'Accessors::Extend   self._____Extend_Self_Method_____ ++++++++++'
-    # end
-    # 3 binding.pry # A ClassMeth Meths+
   end
-
-  # module Prep
-  #   # instance.methods.sort
-  #
-  #   def attr_accessor_with_p
-  #     puts 'attr_accessor_with_p'
-  #   end
-  #
-  #   # def self._____prep_self_____
-  #   #   puts 'prep_____'
-  #   # end
-  # end
-
-  # module Incl
-  #   # instance.methods.sort
-  #
-  #   def attr_accessor_with_i
-  #     puts 'attr_accessor_with_i'
-  #   end
-  #
-  #   # def self._____incl_self_____
-  #   #   puts 'incl_____'
-  #   # end
-  # end
 end
