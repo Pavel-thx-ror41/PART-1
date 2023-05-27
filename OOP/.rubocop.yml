@@ -36,7 +36,7 @@ Metrics/CyclomaticComplexity:
 Metrics/PerceivedComplexity:
   Max: 9 # DEFAULT 8
 Metrics/ClassLength:
-  Max: 125 # DEFAULT 100
+  Max: 150 # DEFAULT 100
 
 #Lint/RedundantStringCoercion:
 #  Enabled: false

@@ -113,11 +113,7 @@ class RailWay
   def correct_seed_train(train, train_idx)
     case train_idx
     when 0
-      train.wagons_map { |w| w.capacity_take(10) }
-      train.wagons_map(&:capacity_take_one)
-      train.manufacturer = 'manufacturer_caption_one'
-      train.manufacturer = 'manufacturer_caption_two'
-      train.manufacturer = 'manufacturer_caption_three'
+      edit_first_seed_train(train)
     when 1
       train.wagons_map { |w| w.capacity_take(10.0) }
     when 2
@@ -132,6 +128,16 @@ class RailWay
       5.times { train.wagon_remove }
     end
     train
+  end
+
+  def edit_first_seed_train(train)
+    train.wagons_map { |w| w.capacity_take(10) }
+    train.wagons_map(&:capacity_take_one)
+    train.manufacturer = 'manufacturer_caption_one'
+    train.manufacturer = 'manufacturer_caption_two'
+    train.manufacturer = 'manufacturer_caption_three'
+    train.origin_country = 'Россия'
+    train.phoneprefix = 7
   end
 
   def seed_trains

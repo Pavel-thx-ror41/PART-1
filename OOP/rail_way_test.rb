@@ -10,11 +10,7 @@ class RailWay
     end
 
     def self.test_trains(trains, stations)
-      raise 'Ошибка проверки доработок Manufacturer' if
-        trains[0].manufacturer != 'manufacturer_caption_three' ||
-        trains[0].manufacturer_history != %w[
-          manufacturer_caption_one manufacturer_caption_two manufacturer_caption_three
-        ]
+      raise 'Ошибка проверки доработок Manufacturer' unless test_manufacturer(trains)
 
       try_take_wrong_wagons_capacities(trains)
       raise 'Ошибка проверки доработок Wagons (полезная нагрузка) проверка capacity_take' if
@@ -121,6 +117,23 @@ class RailWay
       end
 
       station
+    end
+
+    def self.test_manufacturer(trains)
+      trains[0].manufacturer == 'manufacturer_caption_three' &&
+        trains[0].manufacturer_history == %w[
+          manufacturer_caption_one manufacturer_caption_two manufacturer_caption_three
+        ] &&
+        trains[0].origin_country == 'Россия' &&
+        trains[0].phoneprefix == 7 &&
+        !can_set_wrong_strong_manufacturer_attr(trains)
+    end
+
+    def self.can_set_wrong_strong_manufacturer_attr(trains)
+      trains[0].phoneprefix = 'String'
+      true
+    rescue StandardError
+      false
     end
   end
 end
