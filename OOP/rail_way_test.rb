@@ -10,7 +10,11 @@ class RailWay
     end
 
     def self.test_trains(trains, stations)
-      raise 'Ошибка проверки доработок Manufacturer' if trains[0].manufacturer != 'manufacturer_caption'
+      raise 'Ошибка проверки доработок Manufacturer' if
+        trains[0].manufacturer != 'manufacturer_caption_three' ||
+        trains[0].manufacturer_history != %w[
+          manufacturer_caption_one manufacturer_caption_two manufacturer_caption_three
+        ]
 
       try_take_wrong_wagons_capacities(trains)
       raise 'Ошибка проверки доработок Wagons (полезная нагрузка) проверка capacity_take' if

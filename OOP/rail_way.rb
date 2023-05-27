@@ -115,7 +115,9 @@ class RailWay
     when 0
       train.wagons_map { |w| w.capacity_take(10) }
       train.wagons_map(&:capacity_take_one)
-      train.manufacturer = 'manufacturer_caption'
+      train.manufacturer = 'manufacturer_caption_one'
+      train.manufacturer = 'manufacturer_caption_two'
+      train.manufacturer = 'manufacturer_caption_three'
     when 1
       train.wagons_map { |w| w.capacity_take(10.0) }
     when 2
