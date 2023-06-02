@@ -8,7 +8,6 @@ class Wagon
   attr_reader :capacity_total, :capacity_used
 
   def initialize
-    # validate!
     raise 'Ошибка данных, можно создать только PassengerWagon или CargoWagon'
   end
 
@@ -31,14 +30,4 @@ class Wagon
   def capacity_free
     @capacity_total - @capacity_used
   end
-
-  # protected
-  #
-  # def validate!
-  #   unless instance_of?(PassengerWagon) || instance_of?(CargoWagon)
-  #     raise 'Ошибка данных, можно создать только PassengerWagon или CargoWagon'
-  #   end
-  #
-  #   true
-  # end
 end
