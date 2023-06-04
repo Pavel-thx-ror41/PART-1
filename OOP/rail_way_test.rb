@@ -17,7 +17,11 @@ class RailWay
         wrong_train_wagons_capacities?(trains)
 
       # train = try_create_train_with_wrong_number
-      raise 'Поезд должен быть PassengerTrain или CargoTrain, не Train' if try_create_train_with_wrong_number
+      if try_create_train_with_wrong_number
+        raise 'Номер поезд должен быть: три буквы или цифры, необязательный дефис, две буквы или цифры после дефиса'
+      end
+
+      raise 'Поезд должен быть PassengerTrain или CargoTrain, не Train' if try_create_train_with_wrong_type
 
       # train = try_create_train_with_existed_number
       raise 'Ошибка доработок, нельзя создать поезд с повторяющимся номером' if try_create_train_with_existed_number
@@ -48,10 +52,20 @@ class RailWay
       train
     end
 
-    def self.try_create_train_with_wrong_number
+    def self.try_create_train_with_wrong_type
       train = nil
       begin
         train = Train.new('987-ZA')
+      rescue StandardError
+        # do nothing
+      end
+      train
+    end
+
+    def self.try_create_train_with_wrong_number
+      train = nil
+      begin
+        train = CargoTrain.new('987&^%&^%-ZA_JKFJ')
       rescue StandardError
         # do nothing
       end
