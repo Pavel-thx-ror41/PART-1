@@ -1,13 +1,21 @@
 # frozen_string_literal: false
 
 require_relative 'manufacturer'
+require_relative 'validations'
 require_relative 'instance_counter'
 
 class Train
   include Manufacturer
+  include Validations
+  validate :number, :format, /^(\d|[A-ZА-Я]|Ё){3}-?(\d|[A-ZА-Я]|Ё){2}$/i,
+           message: 'Номер должен быть в формате: ' \
+                    'три буквы или цифры, необязательный дефис, две буквы или цифры после дефиса'
+  validate :self, message: 'Можно создать только PassengerTrain или CargoTrain, номер без повторов' do |instance|
+    (instance.instance_of?(CargoTrain) || instance.instance_of?(PassengerTrain)) &&
+      !Train.others_with_same_number?(instance)
+  end
+  # объявлять до InstanceCounter, т.к. в InstanceCounter проверка NotImplementedError !
   include InstanceCounter
-
-  TRAIN_NUMBER_FORMAT = /^(\d|[A-ZА-Я]|Ё){3}-?(\d|[A-ZА-Я]|Ё){2}$/i
 
   # rubocop:disable Style/ClassVars
   @@trains = []
@@ -26,13 +34,6 @@ class Train
 
     validate!
     @@trains << self
-  end
-
-  # используется в InstanceCounter в initialize
-  def valid?
-    (instance_of?(CargoTrain) || instance_of?(PassengerTrain)) &&
-      (@number =~ TRAIN_NUMBER_FORMAT) &&
-      !Train.others_with_same_number?(self)
   end
 
   def self.others_with_same_number?(train)
@@ -131,14 +132,6 @@ class Train
   end
 
   protected
-
-  def validate!
-    return if valid?
-
-    raise 'Можно создать только PassengerTrain или CargoTrain,' \
-          ' с не повторяющемся номером' \
-          ' в формате: три буквы или цифры, необязательный дефис, две буквы или цифры после дефиса '
-  end
 
   # будет вызываться у наследников
   def wagon_is_same_kind?(wagon)

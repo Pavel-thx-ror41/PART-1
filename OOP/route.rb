@@ -1,8 +1,18 @@
 # frozen_string_literal: false
 
+require_relative 'validations'
 require_relative 'instance_counter'
 
 class Route
+  include Validations
+  validate :stations, message: 'Ошибка данных, параметры начальная и конечная станции должны быть разными' \
+                               ' и быть класса Station' do |stations|
+    !stations.first.equal?(stations.last) &&
+      stations.first.is_a?(Station) &&
+      stations.last.is_a?(Station)
+  end
+  # объявлять до InstanceCounter, т.к. в InstanceCounter проверка NotImplementedError !
+
   include InstanceCounter
 
   def initialize(from, to)
@@ -11,13 +21,6 @@ class Route
     @stations << to
 
     validate!
-  end
-
-  # используется в InstanceCounter в initialize
-  def valid?
-    @stations.first.is_a?(Station) &&
-      @stations.last.is_a?(Station) &&
-      !@stations.first.equal?(@stations.last)
   end
 
   def title
@@ -73,13 +76,5 @@ class Route
   def station_get_prev_from(from_station)
     from_station_index = @stations.index(from_station)
     @stations[from_station_index - 1] if from_station_index&.positive?
-  end
-
-  protected
-
-  def validate!
-    return if valid?
-
-    raise 'Ошибка данных, параметры начальная и конечная станции должны быть разными и быть класса Station'
   end
 end

@@ -1,9 +1,17 @@
 # frozen_string_literal: false
 
 require_relative 'train'
+require_relative 'validations'
 require_relative 'instance_counter'
 
 class Station
+  include Validations
+  validate :title, :present
+  validate :title, :type, String
+  validate :title, :format, /^(\d|[A-ZА-Я]|Ё| ){2,32}$/i,
+           message: 'Ошибка. Допустимый формат: от 2-х до 32 буквы, цифры, пробел'
+  # объявлять до InstanceCounter, т.к. в InstanceCounter проверка NotImplementedError !
+
   include InstanceCounter
 
   # rubocop:disable Style/ClassVars
@@ -20,11 +28,6 @@ class Station
 
     validate!
     @@stations << self
-  end
-
-  # используется в InstanceCounter в initialize
-  def valid?
-    @title =~ /^(\d|[A-ZА-Я]|Ё| ){2,32}$/i
   end
 
   attr_reader :title
@@ -64,13 +67,5 @@ class Station
 
   def trains_map(&block)
     @trains.map { |train| block.call(train) } if block_given?
-  end
-
-  private
-
-  def validate!
-    return if valid?
-
-    raise 'Ошибка. Допустимый формат: от 2-х до 32 буквы, цифры, пробел'
   end
 end
