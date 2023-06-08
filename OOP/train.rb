@@ -1,11 +1,13 @@
 # frozen_string_literal: false
 
 require_relative 'manufacturer'
-require_relative 'validations'
 require_relative 'instance_counter'
+require_relative 'validations'
 
 class Train
   include Manufacturer
+  include InstanceCounter
+  # объявлять ПОСЛЕ InstanceCounter, т.к. в InstanceCounter проверка NotImplementedError !
   include Validations
   validate :number, :format, /^(\d|[A-ZА-Я]|Ё){3}-?(\d|[A-ZА-Я]|Ё){2}$/i,
            message: 'Номер должен быть в формате: ' \
@@ -14,8 +16,6 @@ class Train
     (instance.instance_of?(CargoTrain) || instance.instance_of?(PassengerTrain)) &&
       !Train.others_with_same_number?(instance)
   end
-  # объявлять до InstanceCounter, т.к. в InstanceCounter проверка NotImplementedError !
-  include InstanceCounter
 
   # rubocop:disable Style/ClassVars
   @@trains = []

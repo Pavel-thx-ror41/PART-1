@@ -1,18 +1,17 @@
 # frozen_string_literal: false
 
 require_relative 'train'
-require_relative 'validations'
 require_relative 'instance_counter'
+require_relative 'validations'
 
 class Station
+  include InstanceCounter
+  # объявлять ПОСЛЕ InstanceCounter, т.к. в InstanceCounter проверка NotImplementedError !
   include Validations
   validate :title, :present
   validate :title, :type, String
   validate :title, :format, /^(\d|[A-ZА-Я]|Ё| ){2,32}$/i,
            message: 'Ошибка. Допустимый формат: от 2-х до 32 буквы, цифры, пробел'
-  # объявлять до InstanceCounter, т.к. в InstanceCounter проверка NotImplementedError !
-
-  include InstanceCounter
 
   # rubocop:disable Style/ClassVars
   @@stations = []

@@ -1,9 +1,11 @@
 # frozen_string_literal: false
 
-require_relative 'validations'
 require_relative 'instance_counter'
+require_relative 'validations'
 
 class Route
+  include InstanceCounter
+  # объявлять ПОСЛЕ InstanceCounter, т.к. в InstanceCounter проверка NotImplementedError !
   include Validations
   validate :stations, message: 'Ошибка данных, параметры начальная и конечная станции должны быть разными' \
                                ' и быть класса Station' do |stations|
@@ -11,9 +13,6 @@ class Route
       stations.first.is_a?(Station) &&
       stations.last.is_a?(Station)
   end
-  # объявлять до InstanceCounter, т.к. в InstanceCounter проверка NotImplementedError !
-
-  include InstanceCounter
 
   def initialize(from, to)
     @stations = []

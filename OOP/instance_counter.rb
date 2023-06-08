@@ -17,7 +17,7 @@ module InstanceCounter
     def initialize(*args, &block)
       # @@instances_counts ||= {}
       super(*args, &block)
-      register_instance if valid?
+      register_instance if valid?.is_a?(TrueClass)
     end
   end
 
